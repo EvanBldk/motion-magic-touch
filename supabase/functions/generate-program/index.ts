@@ -1182,6 +1182,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                   week_number: { type: "number" },
                   theme: { type: "string" },
                   start_date: { type: "string" },
+                  rationale: { type: "string", description: "3-5 phrases expliquant pourquoi ce programme est adapté à l'utilisateur" },
                   days: {
                     type: "array",
                     items: {
