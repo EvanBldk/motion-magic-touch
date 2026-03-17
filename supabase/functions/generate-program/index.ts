@@ -1194,6 +1194,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                         day: { type: "string" },
                         title: { type: "string" },
                         rationale: { type: "string", description: "1-2 phrases expliquant le focus de cette séance" },
+                        objective: { type: "string", description: "1 phrase actionnable décrivant l'objectif précis de la séance" },
                         phases: {
                           type: "array",
                           items: {
