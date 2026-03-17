@@ -102,6 +102,9 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    const daysPerWeek = forceEval?.days_per_week ?? 4;
+    const sessionDuration = forceEval?.session_duration ?? "45 à 60 minutes";
+
     // ──────────────────────────────────────────────
     // SYSTEM PROMPT — Bases de connaissances Force + Mobilité
     // ──────────────────────────────────────────────
@@ -111,7 +114,8 @@ Tu es un coach expert en callisthénie. Tu génères des programmes d'entraînem
 INSTRUCTIONS DE SORTIE :
 - Retourne UNIQUEMENT un objet JSON valide (pas de texte autour).
 - Structure : { week_number, theme, start_date, days: [{ day, title, phases: [{ name, exercises: [{ name, sets, reps, rest, tempo?, cues? }] }] }] }
-- 4 séances par semaine.
+- ${daysPerWeek} séances par semaine (c'est la disponibilité déclarée par l'utilisateur — respecte ce nombre exactement).
+- Durée cible par séance : ${sessionDuration}. Adapte le volume d'exercices en conséquence.
 - Chaque séance contient : Échauffement, Force Principale (ou Skill Work), Cool-down.
 - Adapte les exercices, volumes et intensités selon les données utilisateur ci-dessous.
 - Respecte TOUTES les règles système des deux bases de connaissances.
