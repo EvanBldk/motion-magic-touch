@@ -1139,15 +1139,115 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
 `;
 
-    // For now, return a structured mock program based on evaluations
+    // Call Lovable AI Gateway for real program generation
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - today.getDay() + 1); // Monday
 
-    const program = {
-      week_number: 1,
-      theme: "Fondations & Adaptation",
-      start_date: startDate.toISOString().split("T")[0],
+    const userPrompt = `Génère un programme d'entraînement hebdomadaire pour cet athlète. Date de début : ${startDate.toISOString().split("T")[0]}`;
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_weekly_program",
+              description: "Génère un programme hebdomadaire structuré.",
+              parameters: {
+                type: "object",
+                properties: {
+                  week_number: { type: "number" },
+                  theme: { type: "string" },
+                  start_date: { type: "string" },
+                  days: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        day: { type: "string" },
+                        title: { type: "string" },
+                        phases: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              exercises: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    name: { type: "string" },
+                                    sets: { type: "number" },
+                                    reps: { type: "string" },
+                                    rest: { type: "string" },
+                                    notes: { type: "string" },
+                                  },
+                                  required: ["name", "sets", "reps", "rest"],
+                                  additionalProperties: false,
+                                },
+                              },
+                            },
+                            required: ["name", "exercises"],
+                            additionalProperties: false,
+                          },
+                        },
+                      },
+                      required: ["day", "title", "phases"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["week_number", "theme", "start_date", "days"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "generate_weekly_program" } },
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "Trop de requêtes. Réessaie dans quelques instants." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "Crédits IA insuffisants." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const errText = await aiResponse.text();
+      console.error("AI gateway error:", aiResponse.status, errText);
+      throw new Error("Erreur du service IA");
+    }
+
+    const aiData = await aiResponse.json();
+    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall?.function?.arguments) {
+      console.error("No tool call in AI response:", JSON.stringify(aiData));
+      throw new Error("Réponse IA invalide");
+    }
+
+    const program = JSON.parse(toolCall.function.arguments);
       days: [
         {
           day: "Lundi",
