@@ -134,12 +134,20 @@ const SessionActive = () => {
   }, [phases.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const togglePhase = (title: string) => setExpandedPhase((prev) => (prev === title ? null : title));
-  const toggleExercise = (id: string) => {
+  const handleDismissTimer = useCallback(() => setRestTimer(null), []);
+
+  const toggleExercise = (id: string, rest?: string) => {
+    const wasCompleted = completedExercises.has(id);
     setCompletedExercises((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+    // Start rest timer when checking an exercise
+    if (!wasCompleted && rest) {
+      const secs = parseRestSeconds(rest);
+      if (secs > 0) setRestTimer(secs);
+    }
   };
 
   const totalExercises = phases.reduce((sum, p) => sum + p.exercises.length, 0);
