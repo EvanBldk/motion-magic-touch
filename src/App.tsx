@@ -4,8 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout/AppLayout";
-import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import SessionActive from "./pages/SessionActive";
 import DiagnosticForce from "./pages/DiagnosticForce";
 import DiagnosticMobilite from "./pages/DiagnosticMobilite";
 import NotFound from "./pages/NotFound";
@@ -28,11 +29,12 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route element={<AppLayout />}>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/diagnostics" element={<Placeholder title="Diagnostics" />} />
             <Route path="/diagnostic-force" element={<DiagnosticForce />} />
             <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
             <Route path="/workout" element={<Placeholder title="Workout" />} />
+            <Route path="/session-active" element={<SessionActive />} />
             <Route path="/profile" element={<Placeholder title="Profil" />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
