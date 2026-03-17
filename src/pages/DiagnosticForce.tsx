@@ -147,6 +147,10 @@ const DiagnosticForce = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Warn before leaving if user has started filling data
+  const hasStarted = useMemo(() => data.firstName !== "" || step > 0, [data.firstName, step]);
+  useNavigationGuard(hasStarted && !submitting);
+
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));
   };

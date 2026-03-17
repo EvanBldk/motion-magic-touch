@@ -111,6 +111,9 @@ const DiagnosticMobilite = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const hasStarted = useMemo(() => step > 0 || data.age !== "", [step, data.age]);
+  useNavigationGuard(hasStarted && !submitting);
+
   const update = <K extends keyof MobilityData>(key: K, value: MobilityData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));
   };
