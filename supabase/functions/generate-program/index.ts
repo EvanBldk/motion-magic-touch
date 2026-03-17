@@ -1190,6 +1190,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                       properties: {
                         day: { type: "string" },
                         title: { type: "string" },
+                        rationale: { type: "string", description: "1-2 phrases expliquant le focus de cette séance" },
                         phases: {
                           type: "array",
                           items: {
