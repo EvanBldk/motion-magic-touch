@@ -278,8 +278,10 @@ const SessionActive = () => {
                                 <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>{ex.name}</p>
                                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
                                   <span>{ex.sets} × {ex.reps}</span>
+                                  {ex.tempo && <span className="font-mono text-[10px] text-primary/70">tempo {ex.tempo}</span>}
                                   {ex.rest !== "—" && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {ex.rest}</span>}
                                 </div>
+                                {ex.cues && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{ex.cues}</p>}
                                 {ex.notes && <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>}
                               </div>
                             </div>
