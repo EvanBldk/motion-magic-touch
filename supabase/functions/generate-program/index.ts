@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
     // ──────────────────────────────────────────────
     // SYSTEM PROMPT — Bases de connaissances Force + Mobilité
     // ──────────────────────────────────────────────
-    const systemPrompt = \`
+    const systemPrompt = `
 Tu es un coach expert en callisthénie. Tu génères des programmes d'entraînement hebdomadaires personnalisés.
 
 INSTRUCTIONS DE SORTIE :
