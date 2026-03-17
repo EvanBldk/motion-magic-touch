@@ -1229,7 +1229,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                     },
                   },
                 },
-                required: ["week_number", "theme", "start_date", "rationale", "days"],
+                required: ["week_number", "theme", "start_date", "rationale", "weekly_objectives", "days"],
                 additionalProperties: false,
               },
             },
