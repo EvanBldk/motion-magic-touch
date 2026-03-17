@@ -3,10 +3,19 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AppLayout } from "@/components/layout/AppLayout";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const Placeholder = ({ title }: { title: string }) => (
+  <div className="flex flex-1 flex-col items-center justify-center p-6">
+    <h1 className="text-3xl font-bold text-primary">{title}</h1>
+    <p className="mt-2 text-sm text-muted-foreground">À venir.</p>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -15,7 +24,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/diagnostics" element={<Placeholder title="Diagnostics" />} />
+            <Route path="/workout" element={<Placeholder title="Workout" />} />
+            <Route path="/profile" element={<Placeholder title="Profil" />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
