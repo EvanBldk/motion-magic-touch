@@ -101,9 +101,14 @@ const Auth = () => {
 
           <Button
             type="submit"
+            disabled={submitting}
             className="w-full rounded-sm font-oswald uppercase tracking-wider"
           >
-            {mode === "login" ? "Se connecter" : "Créer un compte"}
+            {submitting
+              ? "Chargement…"
+              : mode === "login"
+                ? "Se connecter"
+                : "Créer un compte"}
           </Button>
         </form>
 
