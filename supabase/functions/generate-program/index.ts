@@ -80,6 +80,28 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Fetch last 8 completed sessions for feedback injection
+    const { data: recentSessions, error: sessErr } = await supabase
+      .from("daily_sessions")
+      .select("date, feedback_reps, pain_reported")
+      .eq("user_id", userId)
+      .eq("is_completed", true)
+      .order("date", { ascending: false })
+      .limit(8);
+
+    if (sessErr) {
+      console.error("Erreur récupération sessions:", sessErr.message);
+    }
+
+    // Fetch last generated program for progression context
+    const { data: lastProgram } = await supabase
+      .from("weekly_programs")
+      .select("ai_generated")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     // ──────────────────────────────────────────────
     // SYSTEM PROMPT — Bases de connaissances Force + Mobilité
     // ──────────────────────────────────────────────
