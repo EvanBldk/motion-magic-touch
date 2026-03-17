@@ -1196,13 +1196,15 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                                 items: {
                                   type: "object",
                                   properties: {
-                                    name: { type: "string" },
+                                    name: { type: "string", description: "Nom de l'exercice en français courant, sans code catalogue" },
                                     sets: { type: "number" },
                                     reps: { type: "string" },
                                     rest: { type: "string" },
                                     notes: { type: "string" },
+                                    cues: { type: "string", description: "1-2 phrases d'instructions techniques pour guider l'exécution" },
+                                    tempo: { type: "string", description: "Cadence d'exécution, ex: 2-1-2 (descente-pause-montée)" },
                                   },
-                                  required: ["name", "sets", "reps", "rest"],
+                                  required: ["name", "sets", "reps", "rest", "cues"],
                                   additionalProperties: false,
                                 },
                               },

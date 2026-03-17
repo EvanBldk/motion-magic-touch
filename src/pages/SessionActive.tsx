@@ -340,7 +340,7 @@ interface FeedbackBlockProps {
 
 const FeedbackBlock = ({ exercise, feedback, onUpdate }: FeedbackBlockProps) => (
   <div className="space-y-3 rounded-sm border border-border p-4">
-    <h3 className="font-oswald text-xs font-semibold uppercase tracking-wider text-primary">{exercise.name}</h3>
+    <h3 className="font-oswald text-xs font-semibold uppercase tracking-wider text-primary">{cleanExerciseName(exercise.name)}</h3>
     <div className="space-y-1">
       <Label className="text-xs">Exercice complété ?</Label>
       <div className="flex gap-2">
