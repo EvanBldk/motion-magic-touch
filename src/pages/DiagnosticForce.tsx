@@ -304,12 +304,18 @@ const DiagnosticForce = () => {
             <ArrowLeft className="h-4 w-4" /> Retour
           </Button>
           {step < 5 ? (
-            <Button
-              onClick={next}
-              className="gap-2 rounded-sm font-oswald uppercase tracking-wider text-xs"
-            >
-              Suivant <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="flex flex-col items-end gap-1">
+              <Button
+                onClick={next}
+                disabled={!stepValid}
+                className="gap-2 rounded-sm font-oswald uppercase tracking-wider text-xs"
+              >
+                Suivant <ArrowRight className="h-4 w-4" />
+              </Button>
+              {!stepValid && (
+                <span className="text-[10px] text-muted-foreground">Complète tous les champs pour continuer</span>
+              )}
+            </div>
           ) : (
             <Button
               onClick={handleSubmit}
