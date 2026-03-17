@@ -25,6 +25,8 @@ interface Exercise {
   reps: string;
   rest: string;
   notes?: string;
+  cues?: string;
+  tempo?: string;
 }
 
 interface Phase {
