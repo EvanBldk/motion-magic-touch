@@ -204,9 +204,10 @@ const DiagnosticMobilite = () => {
           ) : (
             <Button
               onClick={handleSubmit}
+              disabled={submitting}
               className="gap-2 rounded-sm font-oswald uppercase tracking-wider text-xs"
             >
-              Soumettre <Send className="h-4 w-4" />
+              {submitting ? "Envoi…" : "Soumettre"} <Send className="h-4 w-4" />
             </Button>
           )}
         </div>
