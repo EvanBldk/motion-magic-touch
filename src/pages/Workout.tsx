@@ -78,6 +78,13 @@ const Workout = () => {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-8">
       <div className="mx-auto w-full max-w-2xl space-y-8">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <p className="text-xs font-oswald uppercase tracking-widest text-muted-foreground">Historique</p>
           <h1 className="mt-1 text-2xl font-bold text-primary">Mes séances</h1>
