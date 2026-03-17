@@ -121,6 +121,20 @@ const Profile = () => {
           </div>
         </motion.div>
 
+        {/* Dark mode toggle */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }} className="rounded-sm border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isDark ? <Moon className="h-4 w-4 text-primary" /> : <Sun className="h-4 w-4 text-primary" />}
+              <div>
+                <p className="text-sm font-medium text-foreground">Mode sombre</p>
+                <p className="text-xs text-muted-foreground">{isDark ? "Activé" : "Désactivé"}</p>
+              </div>
+            </div>
+            <Switch checked={isDark} onCheckedChange={toggleDark} />
+          </div>
+        </motion.div>
+
         {/* Sign out */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
           <Button
