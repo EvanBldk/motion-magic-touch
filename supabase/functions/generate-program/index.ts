@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (mobilityErr) {
-      throw new Error(\`Erreur mobility_evaluations: \${mobilityErr.message}\`);
+      throw new Error(`Erreur mobility_evaluations: ${mobilityErr.message}`);
     }
 
     if (!forceEval && !mobilityEval) {
