@@ -37,6 +37,7 @@ export interface WeeklyProgram {
   ai_generated: {
     week_number: number;
     theme: string;
+    rationale?: string;
     start_date: string;
     days: ProgramDay[];
   };

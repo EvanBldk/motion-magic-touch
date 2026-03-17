@@ -1225,7 +1225,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                     },
                   },
                 },
-                required: ["week_number", "theme", "start_date", "days"],
+                required: ["week_number", "theme", "start_date", "rationale", "days"],
                 additionalProperties: false,
               },
             },

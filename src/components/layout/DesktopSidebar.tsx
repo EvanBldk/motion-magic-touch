@@ -1,8 +1,9 @@
-import { Home, ClipboardCheck, Dumbbell, User } from "lucide-react";
+import { Home, ClipboardCheck, Dumbbell, User, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: Home },
+  { title: "Programme", url: "/programme", icon: BookOpen },
   { title: "Diagnostics", url: "/diagnostics", icon: ClipboardCheck },
   { title: "Workout", url: "/workout", icon: Dumbbell },
   { title: "Profil", url: "/profile", icon: User },
