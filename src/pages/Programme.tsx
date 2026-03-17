@@ -82,6 +82,12 @@ function DayAccordion({ day, index }: { day: ProgramDay; index: number }) {
       </AccordionTrigger>
       <AccordionContent className="space-y-4 pb-4">
         <p className="text-xs text-muted-foreground">{day.title}</p>
+        {day.objective && (
+          <div className="flex items-start gap-2 rounded-sm bg-primary/10 border border-primary/20 p-3">
+            <Target className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+            <p className="text-xs font-medium text-foreground leading-relaxed">{day.objective}</p>
+          </div>
+        )}
         {day.rationale && (
           <div className="flex items-start gap-2 rounded-sm bg-secondary/50 p-3">
             <Info className="h-4 w-4 shrink-0 text-primary mt-0.5" />
