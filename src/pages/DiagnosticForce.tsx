@@ -194,28 +194,29 @@ const DiagnosticForce = () => {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("force_evaluations").insert({
+      const insertData = {
         user_id: user.id,
         pull_ups: Number(data.pullUps.reps) || 0,
         dips: Number(data.dips.reps) || 0,
         push_ups: Number(data.pushUps.reps) || 0,
         l_sit: Number(data.lSit.reps) || 0,
         hollow: Number(data.hollowHold.reps) || 0,
-        equipment: data.equipment,
-        goals: {
+        equipment: JSON.parse(JSON.stringify(data.equipment)),
+        goals: JSON.parse(JSON.stringify({
           primary: data.primaryGoal,
           secondary: data.secondaryGoal,
           horizon: data.horizon,
-        },
-        skills: {
+        })),
+        skills: JSON.parse(JSON.stringify({
           handstand: data.handstand,
           muscleUp: data.muscleUp,
           frontLever: data.frontLever,
           backLever: data.backLever,
           planche: data.planche,
           prioritySkill: data.prioritySkill,
-        },
-      });
+        })),
+      };
+      const { error } = await supabase.from("force_evaluations").insert(insertData);
       if (error) throw error;
       toast.success("Évaluation de force enregistrée !");
       navigate("/");
