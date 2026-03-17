@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Flame, Dumbbell, Target, Zap } from "lucide-react";
+import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 /* ============================================================
    MOCK DATA
@@ -48,6 +52,40 @@ const STATS = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!user) return;
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-program");
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const program = data.program;
+
+      // Save to weekly_programs
+      const { error: insertErr } = await supabase.from("weekly_programs").insert([{
+        user_id: user.id,
+        start_date: program.start_date,
+        ai_generated: JSON.parse(JSON.stringify(program)),
+      }]);
+
+      if (insertErr) throw insertErr;
+
+      toast({
+        title: "Programme généré",
+        description: `Semaine "${program.theme}" créée avec succès.`,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      toast({ title: "Erreur", description: message, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-8">
@@ -146,6 +184,32 @@ const Dashboard = () => {
             className="w-full gap-2 rounded-sm py-6 text-base font-oswald uppercase tracking-wider"
           >
             Démarrer la séance <ChevronRight className="h-5 w-5" />
+          </Button>
+        </motion.div>
+
+        {/* Generate Program */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <Button
+            onClick={handleGenerate}
+            disabled={generating}
+            variant="outline"
+            className="w-full gap-2 rounded-sm py-6 text-base font-oswald uppercase tracking-wider"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Génération en cours…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" />
+                Générer mon programme de la semaine
+              </>
+            )}
           </Button>
         </motion.div>
 
