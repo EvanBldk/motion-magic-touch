@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (forceErr) {
-      throw new Error(\`Erreur force_evaluations: \${forceErr.message}\`);
+      throw new Error(`Erreur force_evaluations: ${forceErr.message}`);
     }
 
     // Fetch latest mobility evaluation
