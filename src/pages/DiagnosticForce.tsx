@@ -198,9 +198,21 @@ const DiagnosticForce = () => {
       return;
     }
     setSubmitting(true);
+    const experienceMap: Record<string, string> = {
+      "Aucune (je commence)": "none",
+      "Moins de 6 mois": "less_6m",
+      "6 mois à 2 ans": "6m_2y",
+      "Plus de 2 ans": "more_2y",
+    };
+
     try {
       const insertData = {
         user_id: user.id,
+        first_name: data.firstName || null,
+        age: data.age ? Number(data.age) : null,
+        experience: experienceMap[data.experience] || null,
+        days_per_week: data.daysPerWeek,
+        session_duration: data.sessionDuration || null,
         pull_ups: Number(data.pullUps.reps) || 0,
         dips: Number(data.dips.reps) || 0,
         push_ups: Number(data.pushUps.reps) || 0,
@@ -220,6 +232,7 @@ const DiagnosticForce = () => {
           planche: data.planche,
           prioritySkill: data.prioritySkill,
         })),
+        raw_answers: JSON.parse(JSON.stringify(data)),
       };
       const { error } = await supabase.from("force_evaluations").insert(insertData);
       if (error) throw error;
