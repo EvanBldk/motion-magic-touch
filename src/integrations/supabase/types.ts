@@ -123,6 +123,7 @@ export type Database = {
           id: string
           pain_flags: Json
           posterior_score: number
+          raw_scores: Json
           shoulders_score: number
           thoracic_score: number
           user_id: string
@@ -135,6 +136,7 @@ export type Database = {
           id?: string
           pain_flags?: Json
           posterior_score?: number
+          raw_scores?: Json
           shoulders_score?: number
           thoracic_score?: number
           user_id: string
@@ -147,6 +149,7 @@ export type Database = {
           id?: string
           pain_flags?: Json
           posterior_score?: number
+          raw_scores?: Json
           shoulders_score?: number
           thoracic_score?: number
           user_id?: string

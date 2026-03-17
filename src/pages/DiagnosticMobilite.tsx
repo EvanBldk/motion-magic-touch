@@ -128,7 +128,7 @@ const DiagnosticMobilite = () => {
     }
     setSubmitting(true);
 
-    // Compute average scores per zone
+    // Compute average scores per zone (retro-compat)
     const avg = (vals: (number | null)[]) => {
       const valid = vals.filter((v): v is number => v !== null);
       return valid.length > 0 ? Math.round(valid.reduce((a, b) => a + b, 0) / valid.length) : 0;
@@ -144,16 +144,53 @@ const DiagnosticMobilite = () => {
     if (data.pikePain) painFlags.push("pike");
     if (data.deepSquatPain) painFlags.push("deep_squat");
 
+    // Raw scores: all 21 individual scores + 8 pain flags + profile info
+    const rawScores = {
+      age: data.age,
+      activityLevel: data.activityLevel,
+      hasInjuries: data.hasInjuries,
+      injuryDetails: data.injuryDetails,
+      wristExtLeft: data.wristExtLeft,
+      wristExtRight: data.wristExtRight,
+      wristExtPain: data.wristExtPain,
+      wristFlexLeft: data.wristFlexLeft,
+      wristFlexRight: data.wristFlexRight,
+      wristFlexPain: data.wristFlexPain,
+      shoulderOverhead: data.shoulderOverhead,
+      shoulderOverheadPain: data.shoulderOverheadPain,
+      shoulderRotLeft: data.shoulderRotLeft,
+      shoulderRotRight: data.shoulderRotRight,
+      shoulderRotPain: data.shoulderRotPain,
+      thoracicExt: data.thoracicExt,
+      thoracicPain: data.thoracicPain,
+      bridge: data.bridge,
+      elbowLeft: data.elbowLeft,
+      elbowRight: data.elbowRight,
+      elbowPain: data.elbowPain,
+      pike: data.pike,
+      pikePain: data.pikePain,
+      compression: data.compression,
+      deepSquat: data.deepSquat,
+      deepSquatPain: data.deepSquatPain,
+      hipLeft: data.hipLeft,
+      hipRight: data.hipRight,
+      ankleLeft: data.ankleLeft,
+      ankleRight: data.ankleRight,
+      // Derived scores for convenience
+      elbows_score: avg([data.elbowLeft, data.elbowRight]),
+    };
+
     try {
       const insertData = {
         user_id: user.id,
         wrists_score: avg([data.wristExtLeft, data.wristExtRight, data.wristFlexLeft, data.wristFlexRight]),
         shoulders_score: avg([data.shoulderOverhead, data.shoulderRotLeft, data.shoulderRotRight]),
-        thoracic_score: avg([data.thoracicExt, data.bridge, data.elbowLeft, data.elbowRight]),
+        thoracic_score: avg([data.thoracicExt, data.bridge]),
         posterior_score: avg([data.pike, data.compression]),
         hips_score: avg([data.deepSquat, data.hipLeft, data.hipRight]),
         ankles_score: avg([data.ankleLeft, data.ankleRight]),
         pain_flags: JSON.parse(JSON.stringify(painFlags)),
+        raw_scores: JSON.parse(JSON.stringify(rawScores)),
       };
       const { error } = await supabase.from("mobility_evaluations").insert(insertData);
       if (error) throw error;
