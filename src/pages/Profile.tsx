@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LogOut, Mail, Calendar, Dumbbell, Activity, RefreshCw } from "lucide-react";
+import { LogOut, Mail, Calendar, Dumbbell, Activity, RefreshCw, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface DiagInfo {
   forceDate: string | null;
@@ -15,6 +17,7 @@ interface DiagInfo {
 const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isDark, toggle: toggleDark } = useDarkMode();
   const [diag, setDiag] = useState<DiagInfo>({ forceDate: null, mobilityDate: null, loading: true });
 
   useEffect(() => {
@@ -115,6 +118,20 @@ const Profile = () => {
                 <RefreshCw className="h-3 w-3" /> Refaire
               </Button>
             </div>
+          </div>
+        </motion.div>
+
+        {/* Dark mode toggle */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }} className="rounded-sm border border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isDark ? <Moon className="h-4 w-4 text-primary" /> : <Sun className="h-4 w-4 text-primary" />}
+              <div>
+                <p className="text-sm font-medium text-foreground">Mode sombre</p>
+                <p className="text-xs text-muted-foreground">{isDark ? "Activé" : "Désactivé"}</p>
+              </div>
+            </div>
+            <Switch checked={isDark} onCheckedChange={toggleDark} />
           </div>
         </motion.div>
 

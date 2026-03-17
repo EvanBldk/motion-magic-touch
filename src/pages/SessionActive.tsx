@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp, Flag, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp, Flag, Loader2, Timer, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,6 +64,48 @@ function getTodayDayName(): string {
   return names[new Date().getDay()];
 }
 
+function parseRestSeconds(rest: string): number {
+  const match = rest.match(/(\d+)/);
+  if (!match) return 0;
+  const num = parseInt(match[1], 10);
+  if (rest.toLowerCase().includes("min")) return num * 60;
+  return num;
+}
+
+const RestTimer = ({ seconds, onDone }: { seconds: number; onDone: () => void }) => {
+  const [remaining, setRemaining] = useState(seconds);
+
+  useEffect(() => {
+    if (remaining <= 0) { onDone(); return; }
+    const t = setTimeout(() => setRemaining((r) => r - 1), 1000);
+    return () => clearTimeout(t);
+  }, [remaining, onDone]);
+
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  const pct = seconds > 0 ? ((seconds - remaining) / seconds) * 100 : 100;
+
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="flex flex-col items-center gap-6 rounded-sm border border-border bg-background p-8 shadow-lg">
+        <div className="flex items-center gap-2">
+          <Timer className="h-5 w-5 text-primary" />
+          <span className="font-oswald text-sm uppercase tracking-wider text-muted-foreground">Repos</span>
+        </div>
+        <span className="text-5xl font-bold tabular-nums text-primary">
+          {mins}:{secs.toString().padStart(2, "0")}
+        </span>
+        <div className="h-1.5 w-48 overflow-hidden rounded-sm bg-secondary">
+          <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${pct}%` }} />
+        </div>
+        <button onClick={onDone} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <X className="h-3 w-3" /> Passer
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 const SessionActive = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -73,6 +115,7 @@ const SessionActive = () => {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbacks, setFeedbacks] = useState<Record<string, ExerciseFeedback>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [restTimer, setRestTimer] = useState<number | null>(null);
 
   // Derive phases from program
   const gen = program?.ai_generated;
@@ -91,12 +134,20 @@ const SessionActive = () => {
   }, [phases.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const togglePhase = (title: string) => setExpandedPhase((prev) => (prev === title ? null : title));
-  const toggleExercise = (id: string) => {
+  const handleDismissTimer = useCallback(() => setRestTimer(null), []);
+
+  const toggleExercise = (id: string, rest?: string) => {
+    const wasCompleted = completedExercises.has(id);
     setCompletedExercises((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+    // Start rest timer when checking an exercise
+    if (!wasCompleted && rest) {
+      const secs = parseRestSeconds(rest);
+      if (secs > 0) setRestTimer(secs);
+    }
   };
 
   const totalExercises = phases.reduce((sum, p) => sum + p.exercises.length, 0);
@@ -160,6 +211,10 @@ const SessionActive = () => {
 
   return (
     <div className="flex flex-1 flex-col">
+      {/* Rest Timer Overlay */}
+      <AnimatePresence>
+        {restTimer !== null && <RestTimer seconds={restTimer} onDone={handleDismissTimer} />}
+      </AnimatePresence>
       {/* Top bar */}
       <div className="sticky top-0 z-10 border-b border-border bg-background px-4 py-3 md:px-8">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
@@ -202,7 +257,7 @@ const SessionActive = () => {
                           const done = completedExercises.has(ex.id);
                           return (
                             <div key={ex.id} className={cn("flex items-start gap-3 px-4 py-3 transition-colors", done && "bg-primary/5")}>
-                              <Checkbox checked={done} onCheckedChange={() => toggleExercise(ex.id)} className="mt-0.5" />
+                              <Checkbox checked={done} onCheckedChange={() => toggleExercise(ex.id, ex.rest)} className="mt-0.5" />
                               <div className="flex-1 min-w-0">
                                 <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>{ex.name}</p>
                                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
