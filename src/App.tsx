@@ -34,6 +34,7 @@ const App = () => (
             <Route path="/diagnostic-force" element={<DiagnosticForce />} />
             <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
             <Route path="/workout" element={<Placeholder title="Workout" />} />
+            <Route path="/session-active" element={<SessionActive />} />
             <Route path="/profile" element={<Placeholder title="Profil" />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
