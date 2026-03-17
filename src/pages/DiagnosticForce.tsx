@@ -142,6 +142,9 @@ const initialData: FormData = {
 const DiagnosticForce = () => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>(initialData);
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -184,8 +187,44 @@ const DiagnosticForce = () => {
   const next = () => setStep((s) => Math.min(s + 1, 5));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
-  const handleSubmit = () => {
-    console.log("Force Evaluation Data:", data);
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Tu dois être connecté pour soumettre.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("force_evaluations").insert({
+        user_id: user.id,
+        pull_ups: Number(data.pullUps.reps) || 0,
+        dips: Number(data.dips.reps) || 0,
+        push_ups: Number(data.pushUps.reps) || 0,
+        l_sit: Number(data.lSit.reps) || 0,
+        hollow: Number(data.hollowHold.reps) || 0,
+        equipment: data.equipment,
+        goals: {
+          primary: data.primaryGoal,
+          secondary: data.secondaryGoal,
+          horizon: data.horizon,
+        },
+        skills: {
+          handstand: data.handstand,
+          muscleUp: data.muscleUp,
+          frontLever: data.frontLever,
+          backLever: data.backLever,
+          planche: data.planche,
+          prioritySkill: data.prioritySkill,
+        },
+      });
+      if (error) throw error;
+      toast.success("Évaluation de force enregistrée !");
+      navigate("/");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
