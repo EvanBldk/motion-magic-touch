@@ -207,7 +207,7 @@ const Dashboard = () => {
                 return (
                   <div key={i} className="flex items-center gap-2.5 rounded-sm border border-border bg-secondary/30 p-3">
                     <Icon className="h-4 w-4 shrink-0 text-primary" />
-                    <span className="text-xs font-medium text-foreground">{ex.name}</span>
+                    <span className="text-xs font-medium text-foreground">{cleanExerciseName(ex.name)}</span>
                   </div>
                 );
               })}
