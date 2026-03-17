@@ -9,6 +9,14 @@ export interface ProgramExercise {
   reps: string;
   rest: string;
   notes?: string;
+  cues?: string;
+  tempo?: string;
+}
+
+/** Strip catalogue codes like "PUSH_H_004 (Pompe standard)" → "Pompe standard" */
+export function cleanExerciseName(name: string): string {
+  const match = name.match(/^[A-Z_]+\d+\s*\((.+)\)$/);
+  return match ? match[1] : name;
 }
 
 export interface ProgramPhase {

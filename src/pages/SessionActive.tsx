@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrentProgram, useCompletedSessions } from "@/hooks/useProgram";
 import { toast } from "@/hooks/use-toast";
 import type { ProgramPhase } from "@/hooks/useProgram";
+import { cleanExerciseName } from "@/hooks/useProgram";
 
 interface Exercise {
   id: string;
@@ -24,6 +25,8 @@ interface Exercise {
   reps: string;
   rest: string;
   notes?: string;
+  cues?: string;
+  tempo?: string;
 }
 
 interface Phase {
@@ -50,11 +53,13 @@ function programPhasesToPhases(programPhases: ProgramPhase[]): Phase[] {
     title: p.name,
     exercises: p.exercises.map((ex) => ({
       id: `ex-${idx++}`,
-      name: ex.name,
+      name: cleanExerciseName(ex.name),
       sets: ex.sets,
       reps: ex.reps,
       rest: ex.rest,
       notes: ex.notes,
+      cues: ex.cues,
+      tempo: ex.tempo,
     })),
   }));
 }
@@ -273,8 +278,10 @@ const SessionActive = () => {
                                 <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>{ex.name}</p>
                                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
                                   <span>{ex.sets} × {ex.reps}</span>
+                                  {ex.tempo && <span className="font-mono text-[10px] text-primary/70">tempo {ex.tempo}</span>}
                                   {ex.rest !== "—" && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {ex.rest}</span>}
                                 </div>
+                                {ex.cues && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{ex.cues}</p>}
                                 {ex.notes && <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>}
                               </div>
                             </div>
@@ -333,7 +340,7 @@ interface FeedbackBlockProps {
 
 const FeedbackBlock = ({ exercise, feedback, onUpdate }: FeedbackBlockProps) => (
   <div className="space-y-3 rounded-sm border border-border p-4">
-    <h3 className="font-oswald text-xs font-semibold uppercase tracking-wider text-primary">{exercise.name}</h3>
+    <h3 className="font-oswald text-xs font-semibold uppercase tracking-wider text-primary">{cleanExerciseName(exercise.name)}</h3>
     <div className="space-y-1">
       <Label className="text-xs">Exercice complété ?</Label>
       <div className="flex gap-2">

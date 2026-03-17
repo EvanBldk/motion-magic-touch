@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus } from "@/hooks/useProgram";
 import type { ProgramDay } from "@/hooks/useProgram";
+import { cleanExerciseName } from "@/hooks/useProgram";
 
 const ICON_MAP = [Dumbbell, Target, Flame, Zap];
 const DAY_LABELS = ["D", "L", "M", "M", "J", "V", "S"];
@@ -206,7 +207,7 @@ const Dashboard = () => {
                 return (
                   <div key={i} className="flex items-center gap-2.5 rounded-sm border border-border bg-secondary/30 p-3">
                     <Icon className="h-4 w-4 shrink-0 text-primary" />
-                    <span className="text-xs font-medium text-foreground">{ex.name}</span>
+                    <span className="text-xs font-medium text-foreground">{cleanExerciseName(ex.name)}</span>
                   </div>
                 );
               })}
@@ -256,7 +257,7 @@ const Dashboard = () => {
                   <p className="mt-1 text-xs text-muted-foreground">{day.title}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {day.phases.flatMap((p) => p.exercises).slice(0, 5).map((ex, j) => (
-                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{ex.name}</span>
+                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{cleanExerciseName(ex.name)}</span>
                     ))}
                     {day.phases.flatMap((p) => p.exercises).length > 5 && (
                       <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">+{day.phases.flatMap((p) => p.exercises).length - 5}</span>
