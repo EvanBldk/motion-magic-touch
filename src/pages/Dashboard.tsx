@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus } from "@/hooks/useProgram";
 import type { ProgramDay } from "@/hooks/useProgram";
+import { cleanExerciseName } from "@/hooks/useProgram";
 
 const ICON_MAP = [Dumbbell, Target, Flame, Zap];
 const DAY_LABELS = ["D", "L", "M", "M", "J", "V", "S"];
