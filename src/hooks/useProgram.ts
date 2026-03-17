@@ -28,6 +28,7 @@ export interface ProgramDay {
   day: string;
   title: string;
   rationale?: string;
+  objective?: string;
   phases: ProgramPhase[];
 }
 
