@@ -56,7 +56,7 @@ const SessionCard = ({ session }: { session: CompletedSession }) => {
 };
 
 const Workout = () => {
-  const { sessions, count, streak, loading } = useCompletedSessions();
+  const { sessions, count, streak, loading, error } = useCompletedSessions();
 
   if (loading) {
     return (
