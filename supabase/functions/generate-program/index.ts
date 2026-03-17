@@ -1140,6 +1140,10 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 4. Génère un programme JSON de 4 séances hebdomadaires adapté au niveau et aux objectifs.
 5. Intègre la mobilité (échauffement, fillers, cool-down) selon les scores.
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
+7. Les noms d'exercices doivent être en FRANÇAIS COURANT, sans codes catalogue (pas de PUSH_H_004, MOB_PG_001, etc.). Exemple : "Pompe standard", "Cercles de poignets", "Traction stricte".
+8. Chaque exercice DOIT inclure un champ "cues" contenant 1-2 phrases courtes d'instructions techniques pour guider l'exécution.
+9. Inclure un champ "rationale" (3-5 phrases en français) au niveau racine du JSON expliquant pourquoi ce programme est adapté à l'utilisateur : objectifs visés, faiblesses identifiées dans les diagnostics, logique de progression.
+10. Inclure un champ "rationale" (1-2 phrases en français) dans chaque jour expliquant le focus spécifique de cette séance et pourquoi elle est placée à ce moment de la semaine.
 `;
 
     // Call Lovable AI Gateway for real program generation
