@@ -14,16 +14,203 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_sessions: {
+        Row: {
+          created_at: string
+          date: string
+          feedback_reps: Json
+          id: string
+          is_completed: boolean
+          pain_reported: string | null
+          program_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          feedback_reps?: Json
+          id?: string
+          is_completed?: boolean
+          pain_reported?: string | null
+          program_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          feedback_reps?: Json
+          id?: string
+          is_completed?: boolean
+          pain_reported?: string | null
+          program_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_sessions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      force_evaluations: {
+        Row: {
+          created_at: string
+          dips: number
+          equipment: Json
+          goals: Json
+          hollow: number
+          id: string
+          l_sit: number
+          pull_ups: number
+          push_ups: number
+          skills: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dips?: number
+          equipment?: Json
+          goals?: Json
+          hollow?: number
+          id?: string
+          l_sit?: number
+          pull_ups?: number
+          push_ups?: number
+          skills?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dips?: number
+          equipment?: Json
+          goals?: Json
+          hollow?: number
+          id?: string
+          l_sit?: number
+          pull_ups?: number
+          push_ups?: number
+          skills?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mobility_evaluations: {
+        Row: {
+          ankles_score: number
+          created_at: string
+          hips_score: number
+          id: string
+          pain_flags: Json
+          posterior_score: number
+          shoulders_score: number
+          thoracic_score: number
+          user_id: string
+          wrists_score: number
+        }
+        Insert: {
+          ankles_score?: number
+          created_at?: string
+          hips_score?: number
+          id?: string
+          pain_flags?: Json
+          posterior_score?: number
+          shoulders_score?: number
+          thoracic_score?: number
+          user_id: string
+          wrists_score?: number
+        }
+        Update: {
+          ankles_score?: number
+          created_at?: string
+          hips_score?: number
+          id?: string
+          pain_flags?: Json
+          posterior_score?: number
+          shoulders_score?: number
+          thoracic_score?: number
+          user_id?: string
+          wrists_score?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_programs: {
+        Row: {
+          ai_generated: Json
+          created_at: string
+          id: string
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: Json
+          created_at?: string
+          id?: string
+          start_date: string
+          user_id: string
+        }
+        Update: {
+          ai_generated?: Json
+          created_at?: string
+          id?: string
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "athlete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +337,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "athlete"],
+    },
   },
 } as const
