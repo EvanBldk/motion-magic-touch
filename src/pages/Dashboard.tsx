@@ -257,7 +257,7 @@ const Dashboard = () => {
                   <p className="mt-1 text-xs text-muted-foreground">{day.title}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {day.phases.flatMap((p) => p.exercises).slice(0, 5).map((ex, j) => (
-                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{ex.name}</span>
+                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{cleanExerciseName(ex.name)}</span>
                     ))}
                     {day.phases.flatMap((p) => p.exercises).length > 5 && (
                       <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">+{day.phases.flatMap((p) => p.exercises).length - 5}</span>
