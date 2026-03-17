@@ -1224,7 +1224,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                           },
                         },
                       },
-                      required: ["day", "title", "rationale", "phases"],
+                      required: ["day", "title", "rationale", "objective", "phases"],
                       additionalProperties: false,
                     },
                   },

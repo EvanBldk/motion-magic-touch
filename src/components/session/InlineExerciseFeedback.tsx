@@ -43,7 +43,7 @@ const InlineExerciseFeedback = ({ exerciseName, onSubmit }: Props) => {
     >
       <div className="flex items-center gap-3">
         <div className="flex-1 space-y-1">
-          <Label className="text-xs">Reps réalisées</Label>
+          <Label className="text-xs">Reps par série</Label>
           <Input
             type="number"
             min={0}
