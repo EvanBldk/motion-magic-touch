@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (forceErr) {
-      throw new Error(\`Erreur force_evaluations: \${forceErr.message}\`);
+      throw new Error(`Erreur force_evaluations: ${forceErr.message}`);
     }
 
     // Fetch latest mobility evaluation
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (mobilityErr) {
-      throw new Error(\`Erreur mobility_evaluations: \${mobilityErr.message}\`);
+      throw new Error(`Erreur mobility_evaluations: ${mobilityErr.message}`);
     }
 
     if (!forceEval && !mobilityEval) {
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
     // ──────────────────────────────────────────────
     // SYSTEM PROMPT — Bases de connaissances Force + Mobilité
     // ──────────────────────────────────────────────
-    const systemPrompt = \`
+    const systemPrompt = `
 Tu es un coach expert en callisthénie. Tu génères des programmes d'entraînement hebdomadaires personnalisés.
 
 INSTRUCTIONS DE SORTIE :
@@ -1123,10 +1123,10 @@ La mobilité est un domaine où la patience est la clé. Prescrire trop peu est 
 === DONNÉES UTILISATEUR ===
 
 Évaluation Force :
-\${JSON.stringify(forceEval)}
+${JSON.stringify(forceEval)}
 
 Évaluation Mobilité :
-\${JSON.stringify(mobilityEval)}
+${JSON.stringify(mobilityEval)}
 
 === INSTRUCTIONS FINALES ===
 
@@ -1137,7 +1137,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 4. Génère un programme JSON de 4 séances hebdomadaires adapté au niveau et aux objectifs.
 5. Intègre la mobilité (échauffement, fillers, cool-down) selon les scores.
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
-\`;
+`;
 
     // For now, return a structured mock program based on evaluations
     const today = new Date();
