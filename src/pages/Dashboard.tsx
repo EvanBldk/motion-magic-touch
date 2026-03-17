@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -43,11 +44,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [generating, setGenerating] = useState(false);
-  const { program, loading: progLoading, refetch: refetchProgram } = useCurrentProgram();
-  const { count: sessionsCompleted, streak, todaySession, completedDates, loading: sessLoading } = useCompletedSessions();
+  const { program, loading: progLoading, error: progError, refetch: refetchProgram } = useCurrentProgram();
+  const { count: sessionsCompleted, streak, todaySession, completedDates, loading: sessLoading, error: sessError } = useCompletedSessions();
   const { bothDone: hasDiagnostics, loading: diagLoading } = useDiagnosticStatus();
 
   const isLoading = progLoading || sessLoading || diagLoading;
+  const error = progError || sessError;
 
   const handleGenerate = async () => {
     if (!user) return;
@@ -81,12 +83,10 @@ const Dashboard = () => {
   };
 
   const gen = program?.ai_generated;
-  const todaySessionData = todaySession;
   const todayProgram = gen ? getTodayProgram(gen.days) : null;
   const todayIdx = getTodayDayIndex();
-  const todayDone = !!todaySessionData;
+  const todayDone = !!todaySession;
 
-  // Week day indicators with real completion data
   const weekDates = getWeekDates();
   const trainingDayNames = new Set(gen?.days.map((d) => d.day.toLowerCase()) ?? []);
   const dayNameMap: Record<number, string> = { 0: "dimanche", 1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi" };
@@ -124,6 +124,14 @@ const Dashboard = () => {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-8">
       <div className="mx-auto w-full max-w-2xl space-y-8">
+        {/* Error display */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <p className="text-xs font-oswald uppercase tracking-widest text-muted-foreground">
@@ -224,6 +232,39 @@ const Dashboard = () => {
         {gen && !todayProgram && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }} className="rounded-sm border border-border p-6 text-center">
             <p className="text-sm text-muted-foreground">Jour de repos — récupère bien 💪</p>
+          </motion.div>
+        )}
+
+        {/* Weekly Program Viewer */}
+        {gen && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }} className="space-y-3">
+            <p className="text-[10px] font-oswald uppercase tracking-widest text-muted-foreground">Programme de la semaine</p>
+            {gen.days.map((day, i) => {
+              const isTodayDay = day.day.toLowerCase().startsWith(dayNameMap[todayIdx]);
+              const dateStr = weekDates[Object.entries(dayNameMap).find(([, v]) => day.day.toLowerCase().startsWith(v))?.[0] as unknown as number ?? 0];
+              const isDone = completedDates.has(dateStr);
+              return (
+                <div key={i} className={cn("rounded-sm border p-4 transition-colors", isTodayDay ? "border-primary/50 bg-primary/5" : "border-border")}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {isDone && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                      <h3 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">{day.day}</h3>
+                      {isTodayDay && <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-oswald uppercase text-primary-foreground">Aujourd'hui</span>}
+                    </div>
+                    <span className="text-xs text-muted-foreground">{day.phases.reduce((s, p) => s + p.exercises.length, 0)} exercices</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{day.title}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {day.phases.flatMap((p) => p.exercises).slice(0, 5).map((ex, j) => (
+                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{ex.name}</span>
+                    ))}
+                    {day.phases.flatMap((p) => p.exercises).length > 5 && (
+                      <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">+{day.phases.flatMap((p) => p.exercises).length - 5}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </motion.div>
         )}
 

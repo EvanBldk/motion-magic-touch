@@ -13,7 +13,7 @@ import { ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp, Flag, Loader2, 
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useCurrentProgram } from "@/hooks/useProgram";
+import { useCurrentProgram, useCompletedSessions } from "@/hooks/useProgram";
 import { toast } from "@/hooks/use-toast";
 import type { ProgramPhase } from "@/hooks/useProgram";
 
@@ -110,12 +110,21 @@ const SessionActive = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { program, loading: progLoading } = useCurrentProgram();
+  const { todaySession, loading: sessLoading } = useCompletedSessions();
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbacks, setFeedbacks] = useState<Record<string, ExerciseFeedback>>({});
   const [submitting, setSubmitting] = useState(false);
   const [restTimer, setRestTimer] = useState<number | null>(null);
+
+  // Redirect if today's session is already done
+  useEffect(() => {
+    if (!sessLoading && todaySession) {
+      toast({ title: "Séance déjà complétée", description: "Tu as déjà terminé ta séance du jour." });
+      navigate("/", { replace: true });
+    }
+  }, [sessLoading, todaySession, navigate]);
 
   // Derive phases from program
   const gen = program?.ai_generated;
@@ -143,7 +152,6 @@ const SessionActive = () => {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
-    // Start rest timer when checking an exercise
     if (!wasCompleted && rest) {
       const secs = parseRestSeconds(rest);
       if (secs > 0) setRestTimer(secs);
@@ -168,14 +176,17 @@ const SessionActive = () => {
         .filter(Boolean)
         .join("; ");
 
-      const { error } = await supabase.from("daily_sessions").insert([{
+      const todayDate = new Date().toISOString().split("T")[0];
+
+      // Use upsert to handle unique constraint
+      const { error } = await supabase.from("daily_sessions").upsert([{
         user_id: user.id,
         program_id: program.id,
-        date: new Date().toISOString().split("T")[0],
+        date: todayDate,
         is_completed: true,
         feedback_reps: JSON.parse(JSON.stringify(feedbacks)),
         pain_reported: painReports || null,
-      }]);
+      }], { onConflict: "user_id,date" });
 
       if (error) throw error;
 
@@ -190,7 +201,7 @@ const SessionActive = () => {
     }
   };
 
-  if (progLoading) {
+  if (progLoading || sessLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
