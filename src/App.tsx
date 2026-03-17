@@ -43,7 +43,7 @@ const App = () => (
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="/diagnostic-force" element={<DiagnosticForce />} />
               <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
-              <Route path="/workout" element={<Placeholder title="Workout" />} />
+              <Route path="/workout" element={<Workout />} />
               <Route path="/session-active" element={<SessionActive />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
