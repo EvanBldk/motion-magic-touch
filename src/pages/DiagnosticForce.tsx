@@ -824,9 +824,9 @@ const Step5Skills = ({ data, updateSkill, update }: Step5Props) => {
 const getForceLevel = (exercise: string, reps: number | ""): string => {
   if (reps === "" || reps === 0) return "Débutant";
   const r = Number(reps);
-  if (exercise === "pullUps") return r >= 10 ? "Avancé" : r >= 5 ? "Intermédiaire" : "Débutant";
-  if (exercise === "dips") return r >= 15 ? "Avancé" : r >= 7 ? "Intermédiaire" : "Débutant";
-  if (exercise === "pushUps") return r >= 25 ? "Avancé" : r >= 12 ? "Intermédiaire" : "Débutant";
+  if (exercise === "pullUps") return r >= 15 ? "Avancé" : r >= 8 ? "Intermédiaire" : "Débutant";
+  if (exercise === "dips") return r >= 20 ? "Avancé" : r >= 10 ? "Intermédiaire" : "Débutant";
+  if (exercise === "pushUps") return r >= 30 ? "Avancé" : r >= 15 ? "Intermédiaire" : "Débutant";
   return "";
 };
 
