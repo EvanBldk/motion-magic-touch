@@ -189,7 +189,34 @@ const DiagnosticForce = () => {
     }));
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, 5));
+  const isStepValid = (s: number): boolean => {
+    switch (s) {
+      case 0:
+        return (
+          data.firstName.trim() !== "" &&
+          data.age !== "" && Number(data.age) > 0 &&
+          data.experience !== "" &&
+          data.sessionDuration !== "" &&
+          data.equipment.length > 0
+        );
+      case 1:
+        return data.primaryGoal !== "" && data.horizon !== "";
+      case 2:
+        return data.pullUps.formConfirmed && data.dips.formConfirmed && data.pushUps.formConfirmed;
+      case 3:
+        return data.lSit.formConfirmed && data.hollowHold.formConfirmed;
+      case 4: {
+        const skills = [data.handstand, data.muscleUp, data.frontLever, data.backLever, data.planche];
+        return skills.some((sk) => sk.level !== "") && data.prioritySkill !== "";
+      }
+      default:
+        return true;
+    }
+  };
+
+  const stepValid = isStepValid(step);
+
+  const next = () => { if (stepValid) setStep((s) => Math.min(s + 1, 5)); };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   const handleSubmit = async () => {

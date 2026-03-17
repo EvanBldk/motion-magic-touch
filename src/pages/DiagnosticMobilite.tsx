@@ -118,7 +118,28 @@ const DiagnosticMobilite = () => {
     setData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, 6));
+  const isMobilityStepValid = (s: number): boolean => {
+    switch (s) {
+      case 0:
+        return data.age !== "" && Number(data.age) > 0 && data.activityLevel !== "" && data.hasInjuries !== null;
+      case 1:
+        return data.wristExtLeft !== null || data.wristExtRight !== null || data.wristFlexLeft !== null || data.wristFlexRight !== null;
+      case 2:
+        return data.shoulderOverhead !== null || data.shoulderRotLeft !== null || data.shoulderRotRight !== null;
+      case 3:
+        return data.thoracicExt !== null || data.bridge !== null || data.elbowLeft !== null || data.elbowRight !== null;
+      case 4:
+        return data.pike !== null || data.compression !== null;
+      case 5:
+        return data.deepSquat !== null || data.hipLeft !== null || data.hipRight !== null || data.ankleLeft !== null || data.ankleRight !== null;
+      default:
+        return true;
+    }
+  };
+
+  const mobilityStepValid = isMobilityStepValid(step);
+
+  const next = () => { if (mobilityStepValid) setStep((s) => Math.min(s + 1, 6)); };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   const handleSubmit = async () => {
