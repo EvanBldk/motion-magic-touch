@@ -8,15 +8,61 @@ import type { Json } from "@/integrations/supabase/types";
 
 function parseAvgRpe(feedbackReps: Json): string {
   if (!feedbackReps || typeof feedbackReps !== "object" || Array.isArray(feedbackReps)) return "—";
-  const entries = Object.values(feedbackReps) as Array<Record<string, unknown>>;
-  const rpes = entries.map((e) => Number(e?.rpe)).filter((n) => !isNaN(n) && n > 0);
+  const fb = feedbackReps as Record<string, Json>;
+  const rpes: number[] = [];
+
+  // Exercise feedbacks (nested under "exercises" key)
+  const exercises = fb.exercises;
+  if (exercises && typeof exercises === "object" && !Array.isArray(exercises)) {
+    Object.values(exercises).forEach((e) => {
+      if (e && typeof e === "object" && !Array.isArray(e)) {
+        const rpe = Number((e as Record<string, unknown>).rpe);
+        if (!isNaN(rpe) && rpe > 0) rpes.push(rpe);
+      }
+    });
+  }
+
+  // Phase feedbacks (nested under "phases" key)
+  const phases = fb.phases;
+  if (phases && typeof phases === "object" && !Array.isArray(phases)) {
+    Object.values(phases).forEach((p) => {
+      if (p && typeof p === "object" && !Array.isArray(p)) {
+        const rpe = Number((p as Record<string, unknown>).rpe);
+        if (!isNaN(rpe) && rpe > 0) rpes.push(rpe);
+      }
+    });
+  }
+
+  // Fallback: flat structure (legacy data)
+  if (rpes.length === 0) {
+    Object.values(fb).forEach((e) => {
+      if (e && typeof e === "object" && !Array.isArray(e)) {
+        const rpe = Number((e as Record<string, unknown>).rpe);
+        if (!isNaN(rpe) && rpe > 0) rpes.push(rpe);
+      }
+    });
+  }
+
   if (rpes.length === 0) return "—";
   return (rpes.reduce((a, b) => a + b, 0) / rpes.length).toFixed(1);
 }
 
 function countExercises(feedbackReps: Json): number {
   if (!feedbackReps || typeof feedbackReps !== "object" || Array.isArray(feedbackReps)) return 0;
-  return Object.values(feedbackReps).filter((e) => (e as Record<string, unknown>)?.completed === true).length;
+  const fb = feedbackReps as Record<string, Json>;
+
+  // New structure: count entries in "exercises"
+  const exercises = fb.exercises;
+  if (exercises && typeof exercises === "object" && !Array.isArray(exercises)) {
+    return Object.values(exercises).filter((e) =>
+      e && typeof e === "object" && !Array.isArray(e) && (e as Record<string, unknown>).completed === true
+    ).length;
+  }
+
+  // Fallback: flat structure (legacy)
+  return Object.values(fb).filter((e) =>
+    e && typeof e === "object" && !Array.isArray(e) && (e as Record<string, unknown>).completed === true
+  ).length;
 }
 
 function formatDate(iso: string): string {

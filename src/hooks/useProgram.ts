@@ -28,6 +28,7 @@ export interface ProgramDay {
   day: string;
   title: string;
   rationale?: string;
+  objective?: string;
   phases: ProgramPhase[];
 }
 
@@ -38,6 +39,7 @@ export interface WeeklyProgram {
     week_number: number;
     theme: string;
     rationale?: string;
+    weekly_objectives?: string;
     start_date: string;
     days: ProgramDay[];
   };

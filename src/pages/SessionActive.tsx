@@ -154,6 +154,10 @@ const SessionActive = () => {
     }
   };
 
+  // Map ex IDs to exercise names for feedback storage
+  const exIdToName: Record<string, string> = {};
+  phases.forEach((p) => p.exercises.forEach((ex) => { exIdToName[ex.id] = ex.name; }));
+
   const handleExerciseFeedbackSubmit = (exId: string, data: ExerciseFeedbackData) => {
     setExerciseFeedbacks((prev) => ({ ...prev, [exId]: data }));
     setActiveFeedbackExId(null);
@@ -194,13 +198,20 @@ const SessionActive = () => {
 
       const todayDate = new Date().toISOString().split("T")[0];
 
+      // Build feedback with exercise names as keys
+      const namedExFeedbacks: Record<string, ExerciseFeedbackData & { completed: boolean }> = {};
+      Object.entries(exerciseFeedbacks).forEach(([exId, fb]) => {
+        const name = exIdToName[exId] ?? exId;
+        namedExFeedbacks[name] = { ...fb, completed: true };
+      });
+
       const { error } = await supabase.from("daily_sessions").upsert([{
         user_id: user.id,
         program_id: program.id,
         date: todayDate,
         is_completed: true,
         feedback_reps: JSON.parse(JSON.stringify({
-          exercises: exerciseFeedbacks,
+          exercises: namedExFeedbacks,
           phases: phaseFeedbacks,
         })),
         pain_reported: painParts.join("; ") || null,

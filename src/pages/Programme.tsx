@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, BookOpen, Clock, Repeat, Timer, Info } from "lucide-react";
+import { ChevronRight, BookOpen, Clock, Repeat, Timer, Info, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -82,6 +82,12 @@ function DayAccordion({ day, index }: { day: ProgramDay; index: number }) {
       </AccordionTrigger>
       <AccordionContent className="space-y-4 pb-4">
         <p className="text-xs text-muted-foreground">{day.title}</p>
+        {day.objective && (
+          <div className="flex items-start gap-2 rounded-sm bg-primary/10 border border-primary/20 p-3">
+            <Target className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+            <p className="text-xs font-medium text-foreground leading-relaxed">{day.objective}</p>
+          </div>
+        )}
         {day.rationale && (
           <div className="flex items-start gap-2 rounded-sm bg-secondary/50 p-3">
             <Info className="h-4 w-4 shrink-0 text-primary mt-0.5" />
@@ -153,6 +159,30 @@ const Programme = () => {
               <h2 className="text-xs font-oswald uppercase tracking-widest text-primary">Pourquoi ce programme</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{gen.rationale}</p>
+          </motion.div>
+        )}
+
+        {/* Weekly objectives */}
+        {gen.weekly_objectives && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.08 }}
+            className="rounded-sm border border-primary/20 bg-primary/5 p-4 space-y-2"
+          >
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" />
+              <h2 className="text-xs font-oswald uppercase tracking-widest text-primary">Objectifs de la semaine</h2>
+            </div>
+            <ul className="space-y-1">
+              {gen.weekly_objectives.split(";").map((obj, i) => {
+                const trimmed = obj.trim();
+                if (!trimmed) return null;
+                return (
+                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                    {trimmed}
+                  </li>
+                );
+              })}
+            </ul>
           </motion.div>
         )}
 

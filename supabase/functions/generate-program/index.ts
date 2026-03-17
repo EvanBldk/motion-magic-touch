@@ -1144,6 +1144,8 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 8. Chaque exercice DOIT inclure un champ "cues" contenant 1-2 phrases courtes d'instructions techniques pour guider l'exécution.
 9. Inclure un champ "rationale" (3-5 phrases en français) au niveau racine du JSON expliquant pourquoi ce programme est adapté à l'utilisateur : objectifs visés, faiblesses identifiées dans les diagnostics, logique de progression.
 10. Inclure un champ "rationale" (1-2 phrases en français) dans chaque jour expliquant le focus spécifique de cette séance et pourquoi elle est placée à ce moment de la semaine.
+11. Inclure un champ "weekly_objectives" (string, 2-3 objectifs concrets et mesurables pour la semaine, séparés par des points-virgules). Exemples : "+2 reps sur les tractions strictes ; consolider la pike push-up pour préparer le HSPU ; atteindre 30s de L-sit".
+12. Inclure un champ "objective" (string, 1 phrase actionnable) dans chaque jour décrivant l'objectif précis de la séance. Exemple : "Augmenter le volume de poussée horizontale — objectif : 3×10 pompes complètes".
 `;
 
     // Call Lovable AI Gateway for real program generation
@@ -1183,6 +1185,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                   theme: { type: "string" },
                   start_date: { type: "string" },
                   rationale: { type: "string", description: "3-5 phrases expliquant pourquoi ce programme est adapté à l'utilisateur" },
+                  weekly_objectives: { type: "string", description: "2-3 objectifs concrets et mesurables pour la semaine, séparés par des points-virgules" },
                   days: {
                     type: "array",
                     items: {
@@ -1191,6 +1194,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                         day: { type: "string" },
                         title: { type: "string" },
                         rationale: { type: "string", description: "1-2 phrases expliquant le focus de cette séance" },
+                        objective: { type: "string", description: "1 phrase actionnable décrivant l'objectif précis de la séance" },
                         phases: {
                           type: "array",
                           items: {
@@ -1220,12 +1224,12 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                           },
                         },
                       },
-                      required: ["day", "title", "rationale", "phases"],
+                      required: ["day", "title", "rationale", "objective", "phases"],
                       additionalProperties: false,
                     },
                   },
                 },
-                required: ["week_number", "theme", "start_date", "rationale", "days"],
+                required: ["week_number", "theme", "start_date", "rationale", "weekly_objectives", "days"],
                 additionalProperties: false,
               },
             },
