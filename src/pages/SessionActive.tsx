@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrentProgram, useCompletedSessions } from "@/hooks/useProgram";
 import { toast } from "@/hooks/use-toast";
 import type { ProgramPhase } from "@/hooks/useProgram";
+import { cleanExerciseName } from "@/hooks/useProgram";
 
 interface Exercise {
   id: string;
