@@ -12,6 +12,7 @@ import Diagnostics from "./pages/Diagnostics";
 import SessionActive from "./pages/SessionActive";
 import DiagnosticForce from "./pages/DiagnosticForce";
 import DiagnosticMobilite from "./pages/DiagnosticMobilite";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
