@@ -187,6 +187,32 @@ const Dashboard = () => {
           </Button>
         </motion.div>
 
+        {/* Generate Program */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <Button
+            onClick={handleGenerate}
+            disabled={generating}
+            variant="outline"
+            className="w-full gap-2 rounded-sm py-6 text-base font-oswald uppercase tracking-wider"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Génération en cours…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" />
+                Générer mon programme de la semaine
+              </>
+            )}
+          </Button>
+        </motion.div>
+
         {/* Quick Stats */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
