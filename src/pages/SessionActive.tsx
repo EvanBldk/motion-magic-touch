@@ -53,11 +53,13 @@ function programPhasesToPhases(programPhases: ProgramPhase[]): Phase[] {
     title: p.name,
     exercises: p.exercises.map((ex) => ({
       id: `ex-${idx++}`,
-      name: ex.name,
+      name: cleanExerciseName(ex.name),
       sets: ex.sets,
       reps: ex.reps,
       rest: ex.rest,
       notes: ex.notes,
+      cues: ex.cues,
+      tempo: ex.tempo,
     })),
   }));
 }
