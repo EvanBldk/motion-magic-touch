@@ -80,6 +80,28 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Fetch last 8 completed sessions for feedback injection
+    const { data: recentSessions, error: sessErr } = await supabase
+      .from("daily_sessions")
+      .select("date, feedback_reps, pain_reported")
+      .eq("user_id", userId)
+      .eq("is_completed", true)
+      .order("date", { ascending: false })
+      .limit(8);
+
+    if (sessErr) {
+      console.error("Erreur récupération sessions:", sessErr.message);
+    }
+
+    // Fetch last generated program for progression context
+    const { data: lastProgram } = await supabase
+      .from("weekly_programs")
+      .select("ai_generated")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     // ──────────────────────────────────────────────
     // SYSTEM PROMPT — Bases de connaissances Force + Mobilité
     // ──────────────────────────────────────────────
@@ -1131,7 +1153,20 @@ ${JSON.stringify(forceEval)}
 Évaluation Mobilité :
 ${JSON.stringify(mobilityEval)}
 
-=== INSTRUCTIONS FINALES ===
+=== HISTORIQUE DES SÉANCES RÉCENTES ===
+${recentSessions && recentSessions.length > 0 ? JSON.stringify(recentSessions) : "Aucune séance précédente (premier programme)."}
+
+=== INSTRUCTIONS D'ADAPTATION ===
+Si des séances précédentes sont disponibles, analyse-les pour adapter le programme :
+- Si un exercice a été rapporté comme "trop facile" (RPE ≤ 4) sur 2+ séances → augmenter la difficulté (plus de reps, progression suivante, ou ajouter du tempo)
+- Si un exercice a été rapporté comme "trop difficile" (RPE ≥ 8) sur 2+ séances → régresser d'un niveau
+- Si une douleur a été rapportée (pain_reported non null) → appliquer le protocole douleur du Chapitre 3 : régresser de 2 niveaux sur la chaîne concernée, réduire le volume de 50%
+- Si les reps réelles sont systématiquement inférieures aux reps prescrites → réduire le volume prescrit pour correspondre au niveau réel
+- Si les reps réelles dépassent systématiquement les reps prescrites → augmenter la difficulté
+
+=== PROGRAMME PRÉCÉDENT ===
+${lastProgram ? JSON.stringify(lastProgram.ai_generated) : "Aucun programme précédent."}
+Utilise ce programme comme point de départ pour la progression. Ne répète pas exactement les mêmes exercices — fais évoluer le programme en fonction des retours et de la progression.
 
 En te basant sur les deux bases de connaissances ci-dessus et les données utilisateur :
 1. Classe l'utilisateur selon la matrice de classification (Chapitre 7).
