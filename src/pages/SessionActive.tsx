@@ -211,6 +211,10 @@ const SessionActive = () => {
 
   return (
     <div className="flex flex-1 flex-col">
+      {/* Rest Timer Overlay */}
+      <AnimatePresence>
+        {restTimer !== null && <RestTimer seconds={restTimer} onDone={handleDismissTimer} />}
+      </AnimatePresence>
       {/* Top bar */}
       <div className="sticky top-0 z-10 border-b border-border bg-background px-4 py-3 md:px-8">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
