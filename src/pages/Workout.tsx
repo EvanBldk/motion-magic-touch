@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Calendar, Activity, AlertTriangle } from "lucide-react";
+import { Calendar, Activity, AlertTriangle, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCompletedSessions } from "@/hooks/useProgram";
 import type { CompletedSession } from "@/hooks/useProgram";
 import type { Json } from "@/integrations/supabase/types";
