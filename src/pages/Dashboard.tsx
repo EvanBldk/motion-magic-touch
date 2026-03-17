@@ -52,6 +52,40 @@ const STATS = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!user) return;
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-program");
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const program = data.program;
+
+      // Save to weekly_programs
+      const { error: insertErr } = await supabase.from("weekly_programs").insert({
+        user_id: user.id,
+        start_date: program.start_date,
+        ai_generated: program as unknown as Record<string, unknown>,
+      });
+
+      if (insertErr) throw insertErr;
+
+      toast({
+        title: "Programme généré",
+        description: `Semaine "${program.theme}" créée avec succès.`,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      toast({ title: "Erreur", description: message, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-8">
