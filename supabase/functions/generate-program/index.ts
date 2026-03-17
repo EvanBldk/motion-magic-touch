@@ -1220,7 +1220,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                           },
                         },
                       },
-                      required: ["day", "title", "phases"],
+                      required: ["day", "title", "rationale", "phases"],
                       additionalProperties: false,
                     },
                   },
