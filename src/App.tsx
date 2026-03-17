@@ -13,6 +13,7 @@ import SessionActive from "./pages/SessionActive";
 import Workout from "./pages/Workout";
 import DiagnosticForce from "./pages/DiagnosticForce";
 import DiagnosticMobilite from "./pages/DiagnosticMobilite";
+import Programme from "./pages/Programme";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="/diagnostic-force" element={<DiagnosticForce />} />
               <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
+              <Route path="/programme" element={<Programme />} />
               <Route path="/workout" element={<Workout />} />
               <Route path="/session-active" element={<SessionActive />} />
               <Route path="/profile" element={<Profile />} />

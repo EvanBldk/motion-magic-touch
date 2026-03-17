@@ -27,6 +27,7 @@ export interface ProgramPhase {
 export interface ProgramDay {
   day: string;
   title: string;
+  rationale?: string;
   phases: ProgramPhase[];
 }
 
@@ -36,6 +37,7 @@ export interface WeeklyProgram {
   ai_generated: {
     week_number: number;
     theme: string;
+    rationale?: string;
     start_date: string;
     days: ProgramDay[];
   };

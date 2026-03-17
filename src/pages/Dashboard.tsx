@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -236,36 +236,12 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {/* Weekly Program Viewer */}
+        {/* Link to full programme */}
         {gen && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }} className="space-y-3">
-            <p className="text-[10px] font-oswald uppercase tracking-widest text-muted-foreground">Programme de la semaine</p>
-            {gen.days.map((day, i) => {
-              const isTodayDay = day.day.toLowerCase().startsWith(dayNameMap[todayIdx]);
-              const dateStr = weekDates[Object.entries(dayNameMap).find(([, v]) => day.day.toLowerCase().startsWith(v))?.[0] as unknown as number ?? 0];
-              const isDone = completedDates.has(dateStr);
-              return (
-                <div key={i} className={cn("rounded-sm border p-4 transition-colors", isTodayDay ? "border-primary/50 bg-primary/5" : "border-border")}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {isDone && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                      <h3 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">{day.day}</h3>
-                      {isTodayDay && <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-oswald uppercase text-primary-foreground">Aujourd'hui</span>}
-                    </div>
-                    <span className="text-xs text-muted-foreground">{day.phases.reduce((s, p) => s + p.exercises.length, 0)} exercices</span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{day.title}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {day.phases.flatMap((p) => p.exercises).slice(0, 5).map((ex, j) => (
-                      <span key={j} className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{cleanExerciseName(ex.name)}</span>
-                    ))}
-                    {day.phases.flatMap((p) => p.exercises).length > 5 && (
-                      <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">+{day.phases.flatMap((p) => p.exercises).length - 5}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }}>
+            <Button onClick={() => navigate("/programme")} variant="outline" className="w-full gap-2 rounded-sm py-6 text-base font-oswald uppercase tracking-wider">
+              <BookOpen className="h-5 w-5" /> Voir le programme complet
+            </Button>
           </motion.div>
         )}
 
