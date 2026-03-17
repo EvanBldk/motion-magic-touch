@@ -106,6 +106,9 @@ const initialData: MobilityData = {
 const DiagnosticMobilite = () => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<MobilityData>(initialData);
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const update = <K extends keyof MobilityData>(key: K, value: MobilityData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -114,8 +117,50 @@ const DiagnosticMobilite = () => {
   const next = () => setStep((s) => Math.min(s + 1, 6));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
-  const handleSubmit = () => {
-    console.log("Mobility Evaluation Data:", data);
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Tu dois être connecté pour soumettre.");
+      return;
+    }
+    setSubmitting(true);
+
+    // Compute average scores per zone
+    const avg = (vals: (number | null)[]) => {
+      const valid = vals.filter((v): v is number => v !== null);
+      return valid.length > 0 ? Math.round(valid.reduce((a, b) => a + b, 0) / valid.length) : 0;
+    };
+
+    const painFlags: string[] = [];
+    if (data.wristExtPain) painFlags.push("wrist_extension");
+    if (data.wristFlexPain) painFlags.push("wrist_flexion");
+    if (data.shoulderOverheadPain) painFlags.push("shoulder_overhead");
+    if (data.shoulderRotPain) painFlags.push("shoulder_rotation");
+    if (data.thoracicPain) painFlags.push("thoracic");
+    if (data.elbowPain) painFlags.push("elbows");
+    if (data.pikePain) painFlags.push("pike");
+    if (data.deepSquatPain) painFlags.push("deep_squat");
+
+    try {
+      const insertData = {
+        user_id: user.id,
+        wrists_score: avg([data.wristExtLeft, data.wristExtRight, data.wristFlexLeft, data.wristFlexRight]),
+        shoulders_score: avg([data.shoulderOverhead, data.shoulderRotLeft, data.shoulderRotRight]),
+        thoracic_score: avg([data.thoracicExt, data.bridge, data.elbowLeft, data.elbowRight]),
+        posterior_score: avg([data.pike, data.compression]),
+        hips_score: avg([data.deepSquat, data.hipLeft, data.hipRight]),
+        ankles_score: avg([data.ankleLeft, data.ankleRight]),
+        pain_flags: JSON.parse(JSON.stringify(painFlags)),
+      };
+      const { error } = await supabase.from("mobility_evaluations").insert(insertData);
+      if (error) throw error;
+      toast.success("Évaluation de mobilité enregistrée !");
+      navigate("/");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
