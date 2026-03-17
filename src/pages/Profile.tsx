@@ -17,6 +17,7 @@ interface DiagInfo {
 const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isDark, toggle: toggleDark } = useDarkMode();
   const [diag, setDiag] = useState<DiagInfo>({ forceDate: null, mobilityDate: null, loading: true });
 
   useEffect(() => {
