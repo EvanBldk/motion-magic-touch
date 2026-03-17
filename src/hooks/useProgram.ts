@@ -27,6 +27,7 @@ export interface ProgramPhase {
 export interface ProgramDay {
   day: string;
   title: string;
+  rationale?: string;
   phases: ProgramPhase[];
 }
 
