@@ -57,41 +57,59 @@ export type Database = {
       }
       force_evaluations: {
         Row: {
+          age: number | null
           created_at: string
+          days_per_week: number
           dips: number
           equipment: Json
+          experience: string | null
+          first_name: string | null
           goals: Json
           hollow: number
           id: string
           l_sit: number
           pull_ups: number
           push_ups: number
+          raw_answers: Json
+          session_duration: string | null
           skills: Json
           user_id: string
         }
         Insert: {
+          age?: number | null
           created_at?: string
+          days_per_week?: number
           dips?: number
           equipment?: Json
+          experience?: string | null
+          first_name?: string | null
           goals?: Json
           hollow?: number
           id?: string
           l_sit?: number
           pull_ups?: number
           push_ups?: number
+          raw_answers?: Json
+          session_duration?: string | null
           skills?: Json
           user_id: string
         }
         Update: {
+          age?: number | null
           created_at?: string
+          days_per_week?: number
           dips?: number
           equipment?: Json
+          experience?: string | null
+          first_name?: string | null
           goals?: Json
           hollow?: number
           id?: string
           l_sit?: number
           pull_ups?: number
           push_ups?: number
+          raw_answers?: Json
+          session_duration?: string | null
           skills?: Json
           user_id?: string
         }
