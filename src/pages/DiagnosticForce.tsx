@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -145,6 +146,10 @@ const DiagnosticForce = () => {
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Warn before leaving if user has started filling data
+  const hasStarted = useMemo(() => data.firstName !== "" || step > 0, [data.firstName, step]);
+  useNavigationGuard(hasStarted && !submitting);
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -109,6 +110,9 @@ const DiagnosticMobilite = () => {
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const hasStarted = useMemo(() => step > 0 || data.age !== "", [step, data.age]);
+  useNavigationGuard(hasStarted && !submitting);
 
   const update = <K extends keyof MobilityData>(key: K, value: MobilityData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));

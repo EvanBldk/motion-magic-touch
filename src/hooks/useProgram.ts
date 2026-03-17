@@ -115,19 +115,35 @@ export function useCompletedSessions() {
       // Completed dates set
       setCompletedDates(new Set(list.map((s) => s.date)));
 
-      // Calculate streak
+      // Calculate streak — count consecutive days ending today OR yesterday
       if (list.length > 0) {
-        let s = 0;
         const today = new Date();
-        for (let i = 0; i < list.length; i++) {
-          const d = new Date(list[i].date);
-          const expected = new Date(today);
-          expected.setDate(today.getDate() - i);
-          if (d.toISOString().split("T")[0] === expected.toISOString().split("T")[0]) {
-            s++;
-          } else break;
+        const todayStr = today.toISOString().split("T")[0];
+        const yesterdayDate = new Date(today);
+        yesterdayDate.setDate(today.getDate() - 1);
+        const yesterdayStr = yesterdayDate.toISOString().split("T")[0];
+
+        // Determine starting point: if today is done, start from today; else from yesterday
+        const hasTodaySession = list.some((s) => s.date === todayStr);
+        const startDate = hasTodaySession ? today : (list.some((s) => s.date === yesterdayStr) ? yesterdayDate : null);
+
+        if (startDate) {
+          let s = 0;
+          const dateSet = new Set(list.map((sess) => sess.date));
+          for (let i = 0; i < 365; i++) {
+            const checkDate = new Date(startDate);
+            checkDate.setDate(startDate.getDate() - i);
+            const checkStr = checkDate.toISOString().split("T")[0];
+            if (dateSet.has(checkStr)) {
+              s++;
+            } else {
+              break;
+            }
+          }
+          setStreak(s);
+        } else {
+          setStreak(0);
         }
-        setStreak(s);
       } else {
         setStreak(0);
       }
@@ -154,19 +170,19 @@ export function useDiagnosticStatus() {
   const [hasMobility, setHasMobility] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const refetch = useCallback(async () => {
     if (!user) return;
-    const fetch = async () => {
-      const [f, m] = await Promise.all([
-        supabase.from("force_evaluations").select("id").eq("user_id", user.id).limit(1),
-        supabase.from("mobility_evaluations").select("id").eq("user_id", user.id).limit(1),
-      ]);
-      setHasForce((f.data?.length ?? 0) > 0);
-      setHasMobility((m.data?.length ?? 0) > 0);
-      setLoading(false);
-    };
-    fetch();
+    setLoading(true);
+    const [f, m] = await Promise.all([
+      supabase.from("force_evaluations").select("id").eq("user_id", user.id).limit(1),
+      supabase.from("mobility_evaluations").select("id").eq("user_id", user.id).limit(1),
+    ]);
+    setHasForce((f.data?.length ?? 0) > 0);
+    setHasMobility((m.data?.length ?? 0) > 0);
+    setLoading(false);
   }, [user]);
 
-  return { hasForce, hasMobility, bothDone: hasForce && hasMobility, loading };
+  useEffect(() => { refetch(); }, [refetch]);
+
+  return { hasForce, hasMobility, bothDone: hasForce && hasMobility, loading, refetch };
 }

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "forgot";
 
 const Auth = () => {
   const { user, loading } = useAuth();
@@ -18,7 +18,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // If already logged in, redirect to dashboard
   if (!loading && user) {
     return <Navigate to="/" replace />;
   }
@@ -28,7 +27,14 @@ const Auth = () => {
     setSubmitting(true);
 
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+        if (error) throw error;
+        toast.success("Email de réinitialisation envoyé ! Vérifie ta boîte mail.");
+        setMode("login");
+      } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -62,7 +68,9 @@ const Auth = () => {
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "login"
               ? "Connecte-toi pour reprendre ton entraînement."
-              : "Crée ton compte et commence à t'entraîner."}
+              : mode === "signup"
+                ? "Crée ton compte et commence à t'entraîner."
+                : "Entre ton email pour réinitialiser ton mot de passe."}
           </p>
         </div>
 
@@ -83,21 +91,23 @@ const Auth = () => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-xs uppercase tracking-wider font-oswald">
-              Mot de passe
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="rounded-sm border-border bg-background"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-xs uppercase tracking-wider font-oswald">
+                Mot de passe
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="rounded-sm border-border bg-background"
+              />
+            </div>
+          )}
 
           <Button
             type="submit"
@@ -108,9 +118,24 @@ const Auth = () => {
               ? "Chargement…"
               : mode === "login"
                 ? "Se connecter"
-                : "Créer un compte"}
+                : mode === "signup"
+                  ? "Créer un compte"
+                  : "Envoyer le lien"}
           </Button>
         </form>
+
+        {/* Forgot password link */}
+        {mode === "login" && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors"
+            >
+              Mot de passe oublié ?
+            </button>
+          </div>
+        )}
 
         {/* Toggle mode */}
         <div className="text-center">
@@ -119,9 +144,9 @@ const Auth = () => {
             onClick={() => setMode(mode === "login" ? "signup" : "login")}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors"
           >
-            {mode === "login"
-              ? "Pas encore de compte ? S'inscrire"
-              : "Déjà un compte ? Se connecter"}
+            {mode === "signup"
+              ? "Déjà un compte ? Se connecter"
+              : "Pas encore de compte ? S'inscrire"}
           </button>
         </div>
       </div>
