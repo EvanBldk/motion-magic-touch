@@ -1139,136 +1139,115 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
 `;
 
-    // For now, return a structured mock program based on evaluations
+    // Call Lovable AI Gateway for real program generation
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - today.getDay() + 1); // Monday
 
-    const program = {
-      week_number: 1,
-      theme: "Fondations & Adaptation",
-      start_date: startDate.toISOString().split("T")[0],
-      days: [
-        {
-          day: "Lundi",
-          title: "Upper Push",
-          phases: [
-            {
-              name: "Échauffement",
-              exercises: [
-                { name: "Circles d'épaules", sets: 2, reps: "15", rest: "30s" },
-                { name: "Pompes inclinées", sets: 2, reps: "10", rest: "30s" },
-              ],
-            },
-            {
-              name: "Force Principale",
-              exercises: [
-                {
-                  name: "Push-ups",
-                  sets: 4,
-                  reps: String(Math.max(5, (forceEval?.push_ups ?? 5) - 2)),
-                  rest: "90s",
+    const userPrompt = `Génère un programme d'entraînement hebdomadaire pour cet athlète. Date de début : ${startDate.toISOString().split("T")[0]}`;
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_weekly_program",
+              description: "Génère un programme hebdomadaire structuré.",
+              parameters: {
+                type: "object",
+                properties: {
+                  week_number: { type: "number" },
+                  theme: { type: "string" },
+                  start_date: { type: "string" },
+                  days: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        day: { type: "string" },
+                        title: { type: "string" },
+                        phases: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              exercises: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    name: { type: "string" },
+                                    sets: { type: "number" },
+                                    reps: { type: "string" },
+                                    rest: { type: "string" },
+                                    notes: { type: "string" },
+                                  },
+                                  required: ["name", "sets", "reps", "rest"],
+                                  additionalProperties: false,
+                                },
+                              },
+                            },
+                            required: ["name", "exercises"],
+                            additionalProperties: false,
+                          },
+                        },
+                      },
+                      required: ["day", "title", "phases"],
+                      additionalProperties: false,
+                    },
+                  },
                 },
-                {
-                  name: "Dips",
-                  sets: 3,
-                  reps: String(Math.max(3, (forceEval?.dips ?? 3) - 2)),
-                  rest: "120s",
-                },
-              ],
+                required: ["week_number", "theme", "start_date", "days"],
+                additionalProperties: false,
+              },
             },
-            {
-              name: "Cool-down",
-              exercises: [
-                { name: "Étirement pectoraux", sets: 2, reps: "30s", rest: "—" },
-              ],
-            },
-          ],
-        },
-        {
-          day: "Mercredi",
-          title: "Upper Pull",
-          phases: [
-            {
-              name: "Échauffement",
-              exercises: [
-                { name: "Dead hangs", sets: 2, reps: "20s", rest: "30s" },
-                { name: "Scapular pulls", sets: 2, reps: "8", rest: "30s" },
-              ],
-            },
-            {
-              name: "Force Principale",
-              exercises: [
-                {
-                  name: "Pull-ups",
-                  sets: 4,
-                  reps: String(Math.max(2, (forceEval?.pull_ups ?? 2) - 2)),
-                  rest: "120s",
-                },
-                { name: "Rows inversés", sets: 3, reps: "8", rest: "90s" },
-              ],
-            },
-            {
-              name: "Cool-down",
-              exercises: [
-                { name: "Étirement dorsaux", sets: 2, reps: "30s", rest: "—" },
-              ],
-            },
-          ],
-        },
-        {
-          day: "Vendredi",
-          title: "Skill & Core",
-          phases: [
-            {
-              name: "Skill Work",
-              exercises: [
-                { name: "Handstand au mur", sets: 5, reps: "20s", rest: "60s" },
-                {
-                  name: "L-Sit",
-                  sets: 4,
-                  reps: String(Math.max(5, (forceEval?.l_sit ?? 5)) + "s"),
-                  rest: "60s",
-                },
-              ],
-            },
-            {
-              name: "Force Principale",
-              exercises: [
-                {
-                  name: "Hollow body hold",
-                  sets: 4,
-                  reps: String(Math.max(10, (forceEval?.hollow ?? 10)) + "s"),
-                  rest: "60s",
-                },
-                { name: "Planche lean", sets: 3, reps: "15s", rest: "60s" },
-              ],
-            },
-            {
-              name: "Cool-down",
-              exercises: [
-                { name: "Mobilité poignets", sets: 2, reps: "10", rest: "—" },
-              ],
-            },
-          ],
-        },
-        {
-          day: "Samedi",
-          title: "Mobilité & Récupération",
-          phases: [
-            {
-              name: "Mobilité",
-              exercises: [
-                { name: "Routine épaules", sets: 3, reps: "10", rest: "30s" },
-                { name: "Ouverture hanches", sets: 3, reps: "30s", rest: "30s" },
-                { name: "Flexion thoracique", sets: 2, reps: "10", rest: "30s" },
-                { name: "Étirement ischio-jambiers", sets: 2, reps: "30s", rest: "—" },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "generate_weekly_program" } },
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "Trop de requêtes. Réessaie dans quelques instants." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "Crédits IA insuffisants." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const errText = await aiResponse.text();
+      console.error("AI gateway error:", aiResponse.status, errText);
+      throw new Error("Erreur du service IA");
+    }
+
+    const aiData = await aiResponse.json();
+    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall?.function?.arguments) {
+      console.error("No tool call in AI response:", JSON.stringify(aiData));
+      throw new Error("Réponse IA invalide");
+    }
+
+    const program = JSON.parse(toolCall.function.arguments);
 
     return new Response(JSON.stringify({ program }), {
       status: 200,
