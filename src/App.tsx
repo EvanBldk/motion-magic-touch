@@ -10,8 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Diagnostics from "./pages/Diagnostics";
 import SessionActive from "./pages/SessionActive";
-import DiagnosticForce from "./pages/DiagnosticForce";
-import DiagnosticMobilite from "./pages/DiagnosticMobilite";
+import Workout from "./pages/Workout";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
