@@ -154,6 +154,10 @@ const SessionActive = () => {
     }
   };
 
+  // Map ex IDs to exercise names for feedback storage
+  const exIdToName: Record<string, string> = {};
+  phases.forEach((p) => p.exercises.forEach((ex) => { exIdToName[ex.id] = ex.name; }));
+
   const handleExerciseFeedbackSubmit = (exId: string, data: ExerciseFeedbackData) => {
     setExerciseFeedbacks((prev) => ({ ...prev, [exId]: data }));
     setActiveFeedbackExId(null);
