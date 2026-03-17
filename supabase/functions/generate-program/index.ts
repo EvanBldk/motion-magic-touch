@@ -1137,7 +1137,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 4. Génère un programme JSON de 4 séances hebdomadaires adapté au niveau et aux objectifs.
 5. Intègre la mobilité (échauffement, fillers, cool-down) selon les scores.
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
-\`;
+`;
 
     // For now, return a structured mock program based on evaluations
     const today = new Date();
