@@ -1185,6 +1185,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
                   theme: { type: "string" },
                   start_date: { type: "string" },
                   rationale: { type: "string", description: "3-5 phrases expliquant pourquoi ce programme est adapté à l'utilisateur" },
+                  weekly_objectives: { type: "string", description: "2-3 objectifs concrets et mesurables pour la semaine, séparés par des points-virgules" },
                   days: {
                     type: "array",
                     items: {
