@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LogOut, Mail, Calendar, Dumbbell, Activity, RefreshCw } from "lucide-react";
+import { LogOut, Mail, Calendar, Dumbbell, Activity, RefreshCw, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface DiagInfo {
   forceDate: string | null;
