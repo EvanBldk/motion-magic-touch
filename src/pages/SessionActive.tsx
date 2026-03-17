@@ -253,7 +253,7 @@ const SessionActive = () => {
                           const done = completedExercises.has(ex.id);
                           return (
                             <div key={ex.id} className={cn("flex items-start gap-3 px-4 py-3 transition-colors", done && "bg-primary/5")}>
-                              <Checkbox checked={done} onCheckedChange={() => toggleExercise(ex.id)} className="mt-0.5" />
+                              <Checkbox checked={done} onCheckedChange={() => toggleExercise(ex.id, ex.rest)} className="mt-0.5" />
                               <div className="flex-1 min-w-0">
                                 <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>{ex.name}</p>
                                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
