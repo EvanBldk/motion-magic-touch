@@ -121,6 +121,9 @@ RÈGLES SYSTÈME (OBLIGATOIRE — L'IA DOIT RESPECTER CES RÈGLES EN PRIORITÉ)
 8. En cas de flag douleur dans le formulaire, appliquer le protocole douleur (Chapitre 3) AVANT de générer le programme.
 9. La règle des 10 % s'applique toujours : ne jamais augmenter le volume de plus de 10 % par semaine.
 10. Quand les données de force ET de mobilité sont insuffisantes pour une décision sûre, TOUJOURS choisir l'option la plus conservative.
+11. Les noms d'exercices DOIVENT être en FRANÇAIS COURANT, lisibles et compréhensibles. NE JAMAIS utiliser de codes catalogue internes (pas de PUSH_H_004, MOB_PG_001, PULL_V_002, etc.). Exemples corrects : "Pompe standard", "Cercles de poignets", "Traction stricte", "Équerre au sol (L-sit)".
+12. Chaque exercice DOIT inclure un champ "cues" contenant 1-2 phrases COURTES d'instructions techniques pour guider l'exécution (position du corps, respiration, erreurs à éviter). Exemple : "Garder les coudes à 45°, descendre la poitrine au sol. Expirer en poussant."
+13. Chaque exercice PEUT inclure un champ "tempo" indiquant la cadence d'exécution (ex: "2-1-2" = 2s descente, 1s pause, 2s montée). Ne l'inclure que quand c'est pertinent pour l'exercice.
 
 CHAPITRE 1 — SCIENCE DE L'ENTRAÎNEMENT AU POIDS DU CORPS
 
