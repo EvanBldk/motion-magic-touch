@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,6 +142,9 @@ const initialData: FormData = {
 const DiagnosticForce = () => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>(initialData);
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -180,8 +187,45 @@ const DiagnosticForce = () => {
   const next = () => setStep((s) => Math.min(s + 1, 5));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
-  const handleSubmit = () => {
-    console.log("Force Evaluation Data:", data);
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Tu dois être connecté pour soumettre.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const insertData = {
+        user_id: user.id,
+        pull_ups: Number(data.pullUps.reps) || 0,
+        dips: Number(data.dips.reps) || 0,
+        push_ups: Number(data.pushUps.reps) || 0,
+        l_sit: Number(data.lSit.reps) || 0,
+        hollow: Number(data.hollowHold.reps) || 0,
+        equipment: JSON.parse(JSON.stringify(data.equipment)),
+        goals: JSON.parse(JSON.stringify({
+          primary: data.primaryGoal,
+          secondary: data.secondaryGoal,
+          horizon: data.horizon,
+        })),
+        skills: JSON.parse(JSON.stringify({
+          handstand: data.handstand,
+          muscleUp: data.muscleUp,
+          frontLever: data.frontLever,
+          backLever: data.backLever,
+          planche: data.planche,
+          prioritySkill: data.prioritySkill,
+        })),
+      };
+      const { error } = await supabase.from("force_evaluations").insert(insertData);
+      if (error) throw error;
+      toast.success("Évaluation de force enregistrée !");
+      navigate("/");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -224,9 +268,10 @@ const DiagnosticForce = () => {
           ) : (
             <Button
               onClick={handleSubmit}
+              disabled={submitting}
               className="gap-2 rounded-sm font-oswald uppercase tracking-wider text-xs"
             >
-              Soumettre <Send className="h-4 w-4" />
+              {submitting ? "Envoi…" : "Soumettre"} <Send className="h-4 w-4" />
             </Button>
           )}
         </div>

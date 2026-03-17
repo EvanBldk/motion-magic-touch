@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -22,26 +24,34 @@ const Placeholder = ({ title }: { title: string }) => (
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/diagnostics" element={<Placeholder title="Diagnostics" />} />
-            <Route path="/diagnostic-force" element={<DiagnosticForce />} />
-            <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
-            <Route path="/workout" element={<Placeholder title="Workout" />} />
-            <Route path="/session-active" element={<SessionActive />} />
-            <Route path="/profile" element={<Placeholder title="Profil" />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/diagnostics" element={<Placeholder title="Diagnostics" />} />
+              <Route path="/diagnostic-force" element={<DiagnosticForce />} />
+              <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
+              <Route path="/workout" element={<Placeholder title="Workout" />} />
+              <Route path="/session-active" element={<SessionActive />} />
+              <Route path="/profile" element={<Placeholder title="Profil" />} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
