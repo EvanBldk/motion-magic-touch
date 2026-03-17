@@ -70,7 +70,7 @@ const Dashboard = () => {
       const { error: insertErr } = await supabase.from("weekly_programs").insert([{
         user_id: user.id,
         start_date: program.start_date,
-        ai_generated: program as unknown as Record<string, unknown>,
+        ai_generated: JSON.parse(JSON.stringify(program)),
       }]);
 
       if (insertErr) throw insertErr;
