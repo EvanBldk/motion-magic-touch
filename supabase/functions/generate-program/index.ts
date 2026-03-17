@@ -1123,7 +1123,7 @@ La mobilité est un domaine où la patience est la clé. Prescrire trop peu est 
 === DONNÉES UTILISATEUR ===
 
 Évaluation Force :
-\${JSON.stringify(forceEval)}
+${JSON.stringify(forceEval)}
 
 Évaluation Mobilité :
 \${JSON.stringify(mobilityEval)}
