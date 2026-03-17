@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import DiagnosticForce from "./pages/DiagnosticForce";
+import DiagnosticMobilite from "./pages/DiagnosticMobilite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
             <Route path="/diagnostics" element={<Placeholder title="Diagnostics" />} />
+            <Route path="/diagnostic-force" element={<DiagnosticForce />} />
+            <Route path="/diagnostic-mobilite" element={<DiagnosticMobilite />} />
             <Route path="/workout" element={<Placeholder title="Workout" />} />
             <Route path="/profile" element={<Placeholder title="Profil" />} />
           </Route>
