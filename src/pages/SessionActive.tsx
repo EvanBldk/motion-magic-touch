@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp, Flag, Loader2, Timer, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, ChevronDown, ChevronUp, Flag, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +15,11 @@ import { useCurrentProgram, useCompletedSessions } from "@/hooks/useProgram";
 import { toast } from "@/hooks/use-toast";
 import type { ProgramPhase } from "@/hooks/useProgram";
 import { cleanExerciseName } from "@/hooks/useProgram";
+import RestTimer from "@/components/session/RestTimer";
+import InlineExerciseFeedback, { type ExerciseFeedbackData } from "@/components/session/InlineExerciseFeedback";
+import PhaseFeedback, { type PhaseFeedbackData } from "@/components/session/PhaseFeedback";
+
+/* ── Types ── */
 
 interface Exercise {
   id: string;
@@ -31,26 +34,22 @@ interface Exercise {
 
 interface Phase {
   title: string;
+  type: "warmup" | "force" | "cooldown";
   exercises: Exercise[];
 }
 
-interface ExerciseFeedback {
-  completed: boolean;
-  reps: number | "";
-  rpe: string;
-  hasPain: boolean | null;
-  painDescription: string;
-  painIntensity: number;
+function detectPhaseType(title: string): Phase["type"] {
+  const t = title.toLowerCase();
+  if (/[ée]chauffement|warm/i.test(t)) return "warmup";
+  if (/stretch|cool|retour|[ée]tirement/i.test(t)) return "cooldown";
+  return "force";
 }
-
-const emptyFeedback = (): ExerciseFeedback => ({
-  completed: false, reps: "", rpe: "", hasPain: null, painDescription: "", painIntensity: 0,
-});
 
 function programPhasesToPhases(programPhases: ProgramPhase[]): Phase[] {
   let idx = 0;
   return programPhases.map((p) => ({
     title: p.name,
+    type: detectPhaseType(p.name),
     exercises: p.exercises.map((ex) => ({
       id: `ex-${idx++}`,
       name: cleanExerciseName(ex.name),
@@ -77,51 +76,25 @@ function parseRestSeconds(rest: string): number {
   return num;
 }
 
-const RestTimer = ({ seconds, onDone }: { seconds: number; onDone: () => void }) => {
-  const [remaining, setRemaining] = useState(seconds);
-
-  useEffect(() => {
-    if (remaining <= 0) { onDone(); return; }
-    const t = setTimeout(() => setRemaining((r) => r - 1), 1000);
-    return () => clearTimeout(t);
-  }, [remaining, onDone]);
-
-  const mins = Math.floor(remaining / 60);
-  const secs = remaining % 60;
-  const pct = seconds > 0 ? ((seconds - remaining) / seconds) * 100 : 100;
-
-  return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center gap-6 rounded-sm border border-border bg-background p-8 shadow-lg">
-        <div className="flex items-center gap-2">
-          <Timer className="h-5 w-5 text-primary" />
-          <span className="font-oswald text-sm uppercase tracking-wider text-muted-foreground">Repos</span>
-        </div>
-        <span className="text-5xl font-bold tabular-nums text-primary">
-          {mins}:{secs.toString().padStart(2, "0")}
-        </span>
-        <div className="h-1.5 w-48 overflow-hidden rounded-sm bg-secondary">
-          <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${pct}%` }} />
-        </div>
-        <button onClick={onDone} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <X className="h-3 w-3" /> Passer
-        </button>
-      </div>
-    </motion.div>
-  );
-};
+/* ── Main component ── */
 
 const SessionActive = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { program, loading: progLoading } = useCurrentProgram();
   const { todaySession, loading: sessLoading } = useCompletedSessions();
+
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [feedbacks, setFeedbacks] = useState<Record<string, ExerciseFeedback>>({});
-  const [submitting, setSubmitting] = useState(false);
   const [restTimer, setRestTimer] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // Inline feedback state
+  const [activeFeedbackExId, setActiveFeedbackExId] = useState<string | null>(null);
+  const [exerciseFeedbacks, setExerciseFeedbacks] = useState<Record<string, ExerciseFeedbackData>>({});
+  const [phaseFeedbacks, setPhaseFeedbacks] = useState<Record<string, PhaseFeedbackData>>({});
+  const [submittedPhaseFeedbacks, setSubmittedPhaseFeedbacks] = useState<Set<string>>(new Set());
 
   // Redirect if today's session is already done
   useEffect(() => {
@@ -137,12 +110,9 @@ const SessionActive = () => {
   const todayDay = gen?.days.find((d) => d.day.toLowerCase().startsWith(todayName));
   const phases: Phase[] = todayDay ? programPhasesToPhases(todayDay.phases) : [];
 
-  // Init feedbacks when phases load
+  // Auto-expand first phase
   useEffect(() => {
-    if (phases.length > 0 && Object.keys(feedbacks).length === 0) {
-      const initial: Record<string, ExerciseFeedback> = {};
-      phases.forEach((p) => p.exercises.forEach((ex) => { initial[ex.id] = emptyFeedback(); }));
-      setFeedbacks(initial);
+    if (phases.length > 0 && expandedPhase === null) {
       setExpandedPhase(phases[0].title);
     }
   }, [phases.length]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -150,53 +120,95 @@ const SessionActive = () => {
   const togglePhase = (title: string) => setExpandedPhase((prev) => (prev === title ? null : title));
   const handleDismissTimer = useCallback(() => setRestTimer(null), []);
 
-  const toggleExercise = (id: string, rest?: string) => {
-    const wasCompleted = completedExercises.has(id);
+  const toggleExercise = (ex: Exercise, phase: Phase) => {
+    const wasCompleted = completedExercises.has(ex.id);
+
     setCompletedExercises((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(ex.id)) next.delete(ex.id);
+      else next.add(ex.id);
       return next;
     });
-    if (!wasCompleted && rest) {
-      const secs = parseRestSeconds(rest);
-      if (secs > 0) setRestTimer(secs);
+
+    if (!wasCompleted) {
+      // Start rest timer
+      if (ex.rest) {
+        const secs = parseRestSeconds(ex.rest);
+        if (secs > 0) setRestTimer(secs);
+      }
+
+      // For force phases: show inline feedback for this exercise
+      if (phase.type === "force") {
+        setActiveFeedbackExId(ex.id);
+      }
+    } else {
+      // Unchecking: clear feedback
+      if (phase.type === "force") {
+        setActiveFeedbackExId(null);
+        setExerciseFeedbacks((prev) => {
+          const next = { ...prev };
+          delete next[ex.id];
+          return next;
+        });
+      }
     }
+  };
+
+  const handleExerciseFeedbackSubmit = (exId: string, data: ExerciseFeedbackData) => {
+    setExerciseFeedbacks((prev) => ({ ...prev, [exId]: data }));
+    setActiveFeedbackExId(null);
+  };
+
+  const handlePhaseFeedbackSubmit = (phaseTitle: string, data: PhaseFeedbackData) => {
+    setPhaseFeedbacks((prev) => ({ ...prev, [phaseTitle]: data }));
+    setSubmittedPhaseFeedbacks((prev) => new Set(prev).add(phaseTitle));
   };
 
   const totalExercises = phases.reduce((sum, p) => sum + p.exercises.length, 0);
   const completedCount = completedExercises.size;
   const progress = totalExercises > 0 ? (completedCount / totalExercises) * 100 : 0;
 
-  const updateFeedback = (exId: string, field: keyof ExerciseFeedback, value: unknown) => {
-    setFeedbacks((prev) => ({ ...prev, [exId]: { ...prev[exId], [field]: value } }));
+  const isPhaseComplete = (phase: Phase) => phase.exercises.every((ex) => completedExercises.has(ex.id));
+
+  const handleFinishClick = () => {
+    if (completedCount < totalExercises) {
+      setConfirmOpen(true);
+    } else {
+      handleFinishSession();
+    }
   };
 
   const handleFinishSession = async () => {
     if (!user || !program) return;
     setSubmitting(true);
+    setConfirmOpen(false);
     try {
-      const painReports = Object.values(feedbacks)
-        .filter((f) => f.hasPain === true)
-        .map((f) => f.painDescription)
-        .filter(Boolean)
-        .join("; ");
+      // Collect pain reports from exercise feedbacks
+      const painParts: string[] = [];
+      Object.values(exerciseFeedbacks).forEach((f) => {
+        if (f.hasPain && f.painDescription) painParts.push(f.painDescription);
+      });
+      Object.entries(phaseFeedbacks).forEach(([phase, f]) => {
+        if (f.hasPain && f.painDescription) painParts.push(`[${phase}] ${f.painDescription}`);
+      });
 
       const todayDate = new Date().toISOString().split("T")[0];
 
-      // Use upsert to handle unique constraint
       const { error } = await supabase.from("daily_sessions").upsert([{
         user_id: user.id,
         program_id: program.id,
         date: todayDate,
         is_completed: true,
-        feedback_reps: JSON.parse(JSON.stringify(feedbacks)),
-        pain_reported: painReports || null,
+        feedback_reps: JSON.parse(JSON.stringify({
+          exercises: exerciseFeedbacks,
+          phases: phaseFeedbacks,
+        })),
+        pain_reported: painParts.join("; ") || null,
       }], { onConflict: "user_id,date" });
 
       if (error) throw error;
 
       toast({ title: "Séance enregistrée", description: "Ton feedback a été sauvegardé." });
-      setFeedbackOpen(false);
       navigate("/");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erreur inconnue";
@@ -231,6 +243,7 @@ const SessionActive = () => {
       <AnimatePresence>
         {restTimer !== null && <RestTimer seconds={restTimer} onDone={handleDismissTimer} />}
       </AnimatePresence>
+
       {/* Top bar */}
       <div className="sticky top-0 z-10 border-b border-border bg-background px-4 py-3 md:px-8">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
@@ -254,40 +267,107 @@ const SessionActive = () => {
         <div className="mx-auto max-w-2xl space-y-3">
           {phases.map((phase, pi) => {
             const isExpanded = expandedPhase === phase.title;
-            const phaseCompleted = phase.exercises.every((ex) => completedExercises.has(ex.id));
+            const phaseCompleted = isPhaseComplete(phase);
+            const showPhaseFeedback =
+              (phase.type === "warmup" || phase.type === "cooldown") &&
+              phaseCompleted &&
+              !submittedPhaseFeedbacks.has(phase.title);
+            const phaseFeedbackDone = submittedPhaseFeedbacks.has(phase.title);
+
             return (
-              <motion.div key={phase.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, delay: pi * 0.05 }} className="rounded-sm border border-border overflow-hidden">
-                <button onClick={() => togglePhase(phase.title)} className={cn("flex w-full items-center justify-between px-4 py-3 text-left transition-colors", phaseCompleted ? "bg-primary/5" : "bg-secondary/30")}>
+              <motion.div
+                key={phase.title}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: pi * 0.05 }}
+                className="rounded-sm border border-border overflow-hidden"
+              >
+                <button
+                  onClick={() => togglePhase(phase.title)}
+                  className={cn(
+                    "flex w-full items-center justify-between px-4 py-3 text-left transition-colors",
+                    phaseCompleted ? "bg-primary/5" : "bg-secondary/30"
+                  )}
+                >
                   <div className="flex items-center gap-2">
                     {phaseCompleted && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                    <h2 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">{phase.title}</h2>
-                    <span className="text-[10px] text-muted-foreground">({phase.exercises.length} exercices)</span>
+                    <h2 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">
+                      {phase.title}
+                    </h2>
+                    <span className="text-[10px] text-muted-foreground">
+                      ({phase.exercises.length} exercices)
+                    </span>
+                    {phaseFeedbackDone && (
+                      <span className="text-[10px] text-primary font-medium">✓ feedback</span>
+                    )}
                   </div>
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </button>
+
                 <AnimatePresence>
                   {isExpanded && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}>
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <div className="divide-y divide-border">
                         {phase.exercises.map((ex) => {
                           const done = completedExercises.has(ex.id);
+                          const showFeedback = phase.type === "force" && activeFeedbackExId === ex.id;
+                          const hasFeedback = !!exerciseFeedbacks[ex.id];
+
                           return (
-                            <div key={ex.id} className={cn("flex items-start gap-3 px-4 py-3 transition-colors", done && "bg-primary/5")}>
-                              <Checkbox checked={done} onCheckedChange={() => toggleExercise(ex.id, ex.rest)} className="mt-0.5" />
-                              <div className="flex-1 min-w-0">
-                                <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>{ex.name}</p>
-                                <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                  <span>{ex.sets} × {ex.reps}</span>
-                                  {ex.tempo && <span className="font-mono text-[10px] text-primary/70">tempo {ex.tempo}</span>}
-                                  {ex.rest !== "—" && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {ex.rest}</span>}
+                            <div key={ex.id}>
+                              <div className={cn("flex items-start gap-3 px-4 py-3 transition-colors", done && "bg-primary/5")}>
+                                <Checkbox
+                                  checked={done}
+                                  onCheckedChange={() => toggleExercise(ex, phase)}
+                                  className="mt-0.5"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className={cn("text-sm font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>
+                                      {ex.name}
+                                    </p>
+                                    {hasFeedback && (
+                                      <span className="text-[10px] text-primary font-medium">✓</span>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                    <span>{ex.sets} × {ex.reps}</span>
+                                    {ex.tempo && <span className="font-mono text-[10px] text-primary/70">tempo {ex.tempo}</span>}
+                                    {ex.rest !== "—" && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {ex.rest}</span>}
+                                  </div>
+                                  {ex.cues && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{ex.cues}</p>}
+                                  {ex.notes && <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>}
                                 </div>
-                                {ex.cues && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{ex.cues}</p>}
-                                {ex.notes && <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>}
                               </div>
+
+                              {/* Inline exercise feedback (force only) */}
+                              <AnimatePresence>
+                                {showFeedback && (
+                                  <InlineExerciseFeedback
+                                    exerciseName={ex.name}
+                                    onSubmit={(data) => handleExerciseFeedbackSubmit(ex.id, data)}
+                                  />
+                                )}
+                              </AnimatePresence>
                             </div>
                           );
                         })}
                       </div>
+
+                      {/* Phase feedback (warmup / cooldown) */}
+                      <AnimatePresence>
+                        {showPhaseFeedback && (
+                          <PhaseFeedback
+                            phaseTitle={phase.title}
+                            onSubmit={(data) => handlePhaseFeedbackSubmit(phase.title, data)}
+                          />
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -300,98 +380,41 @@ const SessionActive = () => {
       {/* Finish button */}
       <div className="sticky bottom-16 md:bottom-0 border-t border-border bg-background px-4 py-3">
         <div className="mx-auto max-w-2xl">
-          <Sheet open={feedbackOpen} onOpenChange={setFeedbackOpen}>
-            <SheetTrigger asChild>
-              <Button className="w-full gap-2 rounded-sm py-5 font-oswald uppercase tracking-wider">
-                <Flag className="h-4 w-4" /> Terminer la séance
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-sm">
-              <SheetHeader>
-                <SheetTitle className="font-oswald uppercase tracking-wider text-primary">Feedback de séance</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 space-y-6 pb-6">
-                {phases.map((phase) =>
-                  phase.exercises.map((ex) => (
-                    <FeedbackBlock key={ex.id} exercise={ex} feedback={feedbacks[ex.id] ?? emptyFeedback()} onUpdate={(field, value) => updateFeedback(ex.id, field, value)} />
-                  ))
-                )}
-                <Button onClick={handleFinishSession} disabled={submitting} className="w-full gap-2 rounded-sm py-5 font-oswald uppercase tracking-wider">
-                  {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Enregistrement…</> : "Soumettre le feedback"}
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <Button
+            onClick={handleFinishClick}
+            disabled={submitting}
+            className="w-full gap-2 rounded-sm py-5 font-oswald uppercase tracking-wider"
+          >
+            {submitting ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Enregistrement…</>
+            ) : (
+              <><Flag className="h-4 w-4" /> Terminer la séance</>
+            )}
+          </Button>
         </div>
       </div>
+
+      {/* Confirmation dialog for incomplete exercises */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-oswald uppercase tracking-wider">
+              Exercices incomplets
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tu as complété {completedCount}/{totalExercises} exercices. Terminer quand même ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-sm">Continuer</AlertDialogCancel>
+            <AlertDialogAction onClick={handleFinishSession} className="rounded-sm">
+              Terminer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
-
-/* ============================================================
-   FEEDBACK BLOCK
-   ============================================================ */
-
-interface FeedbackBlockProps {
-  exercise: Exercise;
-  feedback: ExerciseFeedback;
-  onUpdate: (field: keyof ExerciseFeedback, value: unknown) => void;
-}
-
-const FeedbackBlock = ({ exercise, feedback, onUpdate }: FeedbackBlockProps) => (
-  <div className="space-y-3 rounded-sm border border-border p-4">
-    <h3 className="font-oswald text-xs font-semibold uppercase tracking-wider text-primary">{cleanExerciseName(exercise.name)}</h3>
-    <div className="space-y-1">
-      <Label className="text-xs">Exercice complété ?</Label>
-      <div className="flex gap-2">
-        {[{ label: "Oui", val: true }, { label: "Non", val: false }].map((opt) => (
-          <button key={opt.label} type="button" onClick={() => onUpdate("completed", opt.val)} className={cn("rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors", feedback.completed === opt.val ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary")}>
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    </div>
-    <div className="space-y-1">
-      <Label className="text-xs">Reps / Secondes réalisées</Label>
-      <Input type="number" min={0} value={feedback.reps} onChange={(e) => onUpdate("reps", e.target.value ? Number(e.target.value) : "")} placeholder="0" className="rounded-sm w-32" />
-    </div>
-    <div className="space-y-1">
-      <Label className="text-xs">Difficulté (RPE 1–10)</Label>
-      <Select value={feedback.rpe} onValueChange={(v) => onUpdate("rpe", v)}>
-        <SelectTrigger className="rounded-sm w-32"><SelectValue placeholder="RPE" /></SelectTrigger>
-        <SelectContent>
-          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-            <SelectItem key={n} value={String(n)}>{n} {n <= 3 ? "— Facile" : n <= 6 ? "— Modéré" : n <= 8 ? "— Difficile" : "— Max"}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-    <div className="space-y-2">
-      <Label className="text-xs">Douleur ressentie ?</Label>
-      <div className="flex gap-2">
-        {[{ label: "Oui", val: true }, { label: "Non", val: false }].map((opt) => (
-          <button key={opt.label} type="button" onClick={() => onUpdate("hasPain", opt.val)} className={cn("rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors", feedback.hasPain === opt.val ? (opt.val ? "border-destructive bg-destructive/10 text-destructive" : "border-primary bg-primary text-primary-foreground") : "border-border text-muted-foreground hover:border-primary")}>
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    </div>
-    <AnimatePresence>
-      {feedback.hasPain === true && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3">
-          <div className="space-y-1">
-            <Label className="text-xs">Décris la douleur</Label>
-            <Input value={feedback.painDescription} onChange={(e) => onUpdate("painDescription", e.target.value)} placeholder="Zone et type de douleur…" className="rounded-sm" />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Intensité NPRS : {feedback.painIntensity}/10</Label>
-            <input type="range" min={0} max={10} value={feedback.painIntensity} onChange={(e) => onUpdate("painIntensity", Number(e.target.value))} className="w-full accent-primary" />
-            <div className="flex justify-between text-[10px] text-muted-foreground font-oswald"><span>Aucune</span><span>Insupportable</span></div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-);
 
 export default SessionActive;
