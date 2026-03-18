@@ -48,8 +48,9 @@ const Dashboard = () => {
   const { program, loading: progLoading, error: progError, refetch: refetchProgram } = useCurrentProgram();
   const { count: sessionsCompleted, streak, todaySession, completedDates, loading: sessLoading, error: sessError } = useCompletedSessions();
   const { bothDone: hasDiagnostics, loading: diagLoading } = useDiagnosticStatus();
+  const { forceWeeksAgo, mobilityWeeksAgo, forceNeedsReeval, mobilityNeedsReeval, loading: reevalLoading } = useReEvaluationStatus();
 
-  const isLoading = progLoading || sessLoading || diagLoading;
+  const isLoading = progLoading || sessLoading || diagLoading || reevalLoading;
   const error = progError || sessError;
 
   const handleGenerate = async () => {
