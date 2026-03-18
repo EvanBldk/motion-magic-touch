@@ -141,6 +141,12 @@ const Dashboard = () => {
           <h1 className="mt-1 text-2xl font-bold text-primary">
             {gen ? `Semaine ${gen.week_number} — ${gen.theme}` : "Spartan"}
           </h1>
+          {gen && typeof gen.theme === "string" && gen.theme.includes("[DELOAD]") && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-sm border border-amber-500/30 bg-amber-500/10 px-3 py-1.5">
+              <Battery className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs font-oswald uppercase tracking-wider text-amber-700 dark:text-amber-300">Semaine de récupération</span>
+            </div>
+          )}
         </motion.div>
 
         {/* No diagnostics warning */}
