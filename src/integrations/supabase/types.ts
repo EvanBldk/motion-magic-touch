@@ -65,6 +65,7 @@ export type Database = {
           experience: string | null
           first_name: string | null
           goals: Json
+          height_cm: number | null
           hollow: number
           id: string
           l_sit: number
@@ -74,6 +75,7 @@ export type Database = {
           session_duration: string | null
           skills: Json
           user_id: string
+          weight_kg: number | null
         }
         Insert: {
           age?: number | null
@@ -84,6 +86,7 @@ export type Database = {
           experience?: string | null
           first_name?: string | null
           goals?: Json
+          height_cm?: number | null
           hollow?: number
           id?: string
           l_sit?: number
@@ -93,6 +96,7 @@ export type Database = {
           session_duration?: string | null
           skills?: Json
           user_id: string
+          weight_kg?: number | null
         }
         Update: {
           age?: number | null
@@ -103,6 +107,7 @@ export type Database = {
           experience?: string | null
           first_name?: string | null
           goals?: Json
+          height_cm?: number | null
           hollow?: number
           id?: string
           l_sit?: number
@@ -112,6 +117,7 @@ export type Database = {
           session_duration?: string | null
           skills?: Json
           user_id?: string
+          weight_kg?: number | null
         }
         Relationships: []
       }

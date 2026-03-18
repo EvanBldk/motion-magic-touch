@@ -93,6 +93,8 @@ interface FormData {
   // Step 1
   firstName: string;
   age: number | "";
+  weightKg: number | "";
+  heightCm: number | "";
   experience: string;
   daysPerWeek: number;
   sessionDuration: string;
@@ -120,6 +122,8 @@ interface FormData {
 const initialData: FormData = {
   firstName: "",
   age: "",
+  weightKg: "",
+  heightCm: "",
   experience: "",
   daysPerWeek: 3,
   sessionDuration: "",
@@ -195,6 +199,8 @@ const DiagnosticForce = () => {
         return (
           data.firstName.trim() !== "" &&
           data.age !== "" && Number(data.age) > 0 &&
+          data.weightKg !== "" && Number(data.weightKg) > 0 &&
+          data.heightCm !== "" && Number(data.heightCm) > 0 &&
           data.experience !== "" &&
           data.sessionDuration !== "" &&
           data.equipment.length > 0
@@ -237,6 +243,8 @@ const DiagnosticForce = () => {
         user_id: user.id,
         first_name: data.firstName || null,
         age: data.age ? Number(data.age) : null,
+        weight_kg: data.weightKg ? Number(data.weightKg) : null,
+        height_cm: data.heightCm ? Number(data.heightCm) : null,
         experience: experienceMap[data.experience] || null,
         days_per_week: data.daysPerWeek,
         session_duration: data.sessionDuration || null,
@@ -366,6 +374,34 @@ const Step1Profile = ({ data, update, toggleEquipment }: Step1Props) => (
         placeholder="25"
         className="rounded-sm"
       />
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label className="text-xs uppercase tracking-wider font-oswald">Poids (kg)</Label>
+        <Input
+          type="number"
+          min={30}
+          max={200}
+          step={0.1}
+          value={data.weightKg}
+          onChange={(e) => update("weightKg", e.target.value ? Number(e.target.value) : "")}
+          placeholder="75"
+          className="rounded-sm"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs uppercase tracking-wider font-oswald">Taille (cm)</Label>
+        <Input
+          type="number"
+          min={100}
+          max={230}
+          value={data.heightCm}
+          onChange={(e) => update("heightCm", e.target.value ? Number(e.target.value) : "")}
+          placeholder="175"
+          className="rounded-sm"
+        />
+      </div>
     </div>
 
     <div className="space-y-2">
@@ -884,6 +920,8 @@ const Step6Summary = ({ data }: { data: FormData }) => (
     <SummaryCard title="Profil">
       <SummaryRow label="Prénom" value={data.firstName || "—"} />
       <SummaryRow label="Âge" value={data.age || "—"} />
+      <SummaryRow label="Poids" value={data.weightKg ? `${data.weightKg} kg` : "—"} />
+      <SummaryRow label="Taille" value={data.heightCm ? `${data.heightCm} cm` : "—"} />
       <SummaryRow label="Expérience" value={data.experience || "—"} />
       <SummaryRow label="Jours / semaine" value={data.daysPerWeek} />
       <SummaryRow label="Durée séance" value={data.sessionDuration || "—"} />
