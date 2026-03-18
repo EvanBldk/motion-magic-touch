@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronDown, ChevronUp, Stretch } from "lucide-react";
+import { ChevronDown, ChevronUp, Activity } from "lucide-react";
 
 interface Exercise {
   name: string;
