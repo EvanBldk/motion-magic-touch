@@ -199,6 +199,8 @@ const DiagnosticForce = () => {
         return (
           data.firstName.trim() !== "" &&
           data.age !== "" && Number(data.age) > 0 &&
+          data.weightKg !== "" && Number(data.weightKg) > 0 &&
+          data.heightCm !== "" && Number(data.heightCm) > 0 &&
           data.experience !== "" &&
           data.sessionDuration !== "" &&
           data.equipment.length > 0
