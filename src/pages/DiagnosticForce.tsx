@@ -93,6 +93,8 @@ interface FormData {
   // Step 1
   firstName: string;
   age: number | "";
+  weightKg: number | "";
+  heightCm: number | "";
   experience: string;
   daysPerWeek: number;
   sessionDuration: string;
