@@ -1322,7 +1322,7 @@ ${isDeloadWeek
       throw new Error("Réponse IA invalide");
     }
 
-    const program = JSON.parse(toolCall.function.arguments);
+    const program = cleanProgram(JSON.parse(toolCall.function.arguments));
 
     return new Response(JSON.stringify({ program }), {
       status: 200,
