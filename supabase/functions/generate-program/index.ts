@@ -102,6 +102,16 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    // Count total programs for week numbering and deload logic
+    const { data: allPrograms } = await supabase
+      .from("weekly_programs")
+      .select("id")
+      .eq("user_id", userId);
+
+    const totalWeeks = allPrograms?.length ?? 0;
+    const weeksSinceStart = totalWeeks;
+    const isDeloadWeek = weeksSinceStart > 0 && weeksSinceStart % 5 === 0;
+
     const daysPerWeek = forceEval?.days_per_week ?? 4;
     const sessionDuration = forceEval?.session_duration ?? "45 à 60 minutes";
 
