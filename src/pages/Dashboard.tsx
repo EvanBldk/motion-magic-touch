@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2, BookOpen } from "lucide-react";
+import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2, BookOpen, Battery } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
