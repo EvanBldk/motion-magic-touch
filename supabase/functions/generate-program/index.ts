@@ -1151,6 +1151,11 @@ La mobilité est un domaine où la patience est la clé. Prescrire trop peu est 
 
 === DONNÉES UTILISATEUR ===
 
+Profil morphologique :
+- Poids : ${forceEval?.weight_kg ?? "non renseigné"} kg
+- Taille : ${forceEval?.height_cm ?? "non renseigné"} cm
+${(forceEval?.weight_kg && forceEval.weight_kg > 80) || (forceEval?.height_cm && forceEval.height_cm > 180) ? "⚠️ Profil grand/lourd — appliquer les modificateurs de timeline ×1.5-3 pour les figures de levier (planche, front lever). Privilégier le straddle comme objectif réaliste." : ""}
+
 Évaluation Force :
 ${JSON.stringify(forceEval)}
 

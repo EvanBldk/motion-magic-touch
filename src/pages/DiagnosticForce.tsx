@@ -920,6 +920,8 @@ const Step6Summary = ({ data }: { data: FormData }) => (
     <SummaryCard title="Profil">
       <SummaryRow label="Prénom" value={data.firstName || "—"} />
       <SummaryRow label="Âge" value={data.age || "—"} />
+      <SummaryRow label="Poids" value={data.weightKg ? `${data.weightKg} kg` : "—"} />
+      <SummaryRow label="Taille" value={data.heightCm ? `${data.heightCm} cm` : "—"} />
       <SummaryRow label="Expérience" value={data.experience || "—"} />
       <SummaryRow label="Jours / semaine" value={data.daysPerWeek} />
       <SummaryRow label="Durée séance" value={data.sessionDuration || "—"} />
