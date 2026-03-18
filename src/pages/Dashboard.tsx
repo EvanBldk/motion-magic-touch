@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus, useReEvaluationStatus } from "@/hooks/useProgram";
 import type { ProgramDay } from "@/hooks/useProgram";
 import { cleanExerciseName } from "@/hooks/useProgram";
+import RestDayRoutine, { getRestDayExercises } from "@/components/session/RestDayRoutine";
 
 const ICON_MAP = [Dumbbell, Target, Flame, Zap];
 const DAY_LABELS = ["D", "L", "M", "M", "J", "V", "S"];
@@ -40,6 +41,49 @@ function getWeekDates(): string[] {
   }
   return dates;
 }
+
+const RestDayBlock = ({ userId }: { userId: string | undefined }) => {
+  const [weakZones, setWeakZones] = useState<ReturnType<typeof getRestDayExercises> | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("mobility_evaluations")
+      .select("wrists_score, shoulders_score, thoracic_score, posterior_score, hips_score, ankles_score")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const m = data[0];
+          setWeakZones(
+            getRestDayExercises({
+              wrists: m.wrists_score,
+              shoulders: m.shoulders_score,
+              thoracic: m.thoracic_score,
+              posterior: m.posterior_score,
+              hips: m.hips_score,
+              ankles: m.ankles_score,
+            })
+          );
+        }
+        setLoaded(true);
+      });
+  }, [userId]);
+
+  if (!loaded) return null;
+
+  if (weakZones) {
+    return <RestDayRoutine weakZones={weakZones} />;
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }} className="rounded-sm border border-border p-6 text-center">
+      <p className="text-sm text-muted-foreground">Jour de repos — récupère bien 💪</p>
+    </motion.div>
+  );
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -263,11 +307,8 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {/* Rest day */}
         {gen && !todayProgram && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }} className="rounded-sm border border-border p-6 text-center">
-            <p className="text-sm text-muted-foreground">Jour de repos — récupère bien 💪</p>
-          </motion.div>
+          <RestDayBlock userId={user?.id} />
         )}
 
         {/* Link to full programme */}
