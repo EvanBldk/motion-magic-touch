@@ -218,7 +218,7 @@ const RestDayRoutine = ({ weakZones }: RestDayRoutineProps) => {
                     onClick={() => setStarted(true)}
                     className="flex-1 gap-2 rounded-sm font-oswald uppercase tracking-wider text-xs"
                   >
-                    <Stretch className="h-4 w-4" /> Commencer
+                    <Activity className="h-4 w-4" /> Commencer
                   </Button>
                   <Button
                     onClick={() => setSkipped(true)}
