@@ -102,6 +102,16 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    // Count total programs for week numbering and deload logic
+    const { data: allPrograms } = await supabase
+      .from("weekly_programs")
+      .select("id")
+      .eq("user_id", userId);
+
+    const totalWeeks = allPrograms?.length ?? 0;
+    const weeksSinceStart = totalWeeks;
+    const isDeloadWeek = weeksSinceStart > 0 && weeksSinceStart % 5 === 0;
+
     const daysPerWeek = forceEval?.days_per_week ?? 4;
     const sessionDuration = forceEval?.session_duration ?? "45 à 60 minutes";
 
@@ -1181,7 +1191,7 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 1. Classe l'utilisateur selon la matrice de classification (Chapitre 7).
 2. Vérifie les prérequis de mobilité avant d'autoriser chaque skill.
 3. Applique le protocole douleur si des pain_flags sont présents.
-4. Génère un programme JSON de 4 séances hebdomadaires adapté au niveau et aux objectifs.
+4. Génère un programme JSON de ${daysPerWeek} séances hebdomadaires adapté au niveau et aux objectifs.
 5. Intègre la mobilité (échauffement, fillers, cool-down) selon les scores.
 6. Retourne UNIQUEMENT le JSON, sans texte autour.
 7. Les noms d'exercices doivent être en FRANÇAIS COURANT, sans codes catalogue (pas de PUSH_H_004, MOB_PG_001, etc.). Exemple : "Pompe standard", "Cercles de poignets", "Traction stricte".
@@ -1190,6 +1200,12 @@ En te basant sur les deux bases de connaissances ci-dessus et les données utili
 10. Inclure un champ "rationale" (1-2 phrases en français) dans chaque jour expliquant le focus spécifique de cette séance et pourquoi elle est placée à ce moment de la semaine.
 11. Inclure un champ "weekly_objectives" (string, 2-3 objectifs concrets et mesurables pour la semaine, séparés par des points-virgules). Exemples : "+2 reps sur les tractions strictes ; consolider la pike push-up pour préparer le HSPU ; atteindre 30s de L-sit".
 12. Inclure un champ "objective" (string, 1 phrase actionnable) dans chaque jour décrivant l'objectif précis de la séance. Exemple : "Augmenter le volume de poussée horizontale — objectif : 3×10 pompes complètes".
+13. Le week_number DOIT être ${totalWeeks + 1}.
+
+=== DELOAD / PÉRIODISATION ===
+${isDeloadWeek
+  ? "⚠️ SEMAINE DE DELOAD OBLIGATOIRE. Réduis le volume de 40-50% (moins de séries, pas moins d'exercices). Maintiens l'intensité mais réduis les sets de 4-5 à 2-3. Ajoute le mot '[DELOAD]' au thème de la semaine. Dans le rationale, explique pourquoi cette semaine est une semaine de récupération."
+  : `Semaine ${totalWeeks + 1}. Prochain deload prévu dans ${5 - (weeksSinceStart % 5)} semaine(s).`}
 `;
 
     // Call Lovable AI Gateway for real program generation
