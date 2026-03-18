@@ -157,7 +157,7 @@ const RestDayRoutine = ({ weakZones }: RestDayRoutineProps) => {
         className="rounded-sm border border-primary/30 bg-primary/5 p-5 space-y-2"
       >
         <div className="flex items-center gap-2">
-          <Stretch className="h-5 w-5 text-primary" />
+          <Activity className="h-5 w-5 text-primary" />
           <p className="text-sm font-semibold text-primary">Routine mobilité terminée !</p>
         </div>
         <p className="text-xs text-muted-foreground">Bien joué — ton corps te remercie 🧘</p>
