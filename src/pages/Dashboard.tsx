@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2, BookOpen, Battery } from "lucide-react";
+import { ChevronRight, Flame, Dumbbell, Target, Zap, Loader2, Sparkles, AlertCircle, CheckCircle2, BookOpen, Battery, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus } from "@/hooks/useProgram";
+import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus, useReEvaluationStatus } from "@/hooks/useProgram";
 import type { ProgramDay } from "@/hooks/useProgram";
 import { cleanExerciseName } from "@/hooks/useProgram";
 
@@ -48,8 +48,9 @@ const Dashboard = () => {
   const { program, loading: progLoading, error: progError, refetch: refetchProgram } = useCurrentProgram();
   const { count: sessionsCompleted, streak, todaySession, completedDates, loading: sessLoading, error: sessError } = useCompletedSessions();
   const { bothDone: hasDiagnostics, loading: diagLoading } = useDiagnosticStatus();
+  const { forceWeeksAgo, mobilityWeeksAgo, forceNeedsReeval, mobilityNeedsReeval, loading: reevalLoading } = useReEvaluationStatus();
 
-  const isLoading = progLoading || sessLoading || diagLoading;
+  const isLoading = progLoading || sessLoading || diagLoading || reevalLoading;
   const error = progError || sessError;
 
   const handleGenerate = async () => {
@@ -159,6 +160,33 @@ const Dashboard = () => {
               <Button onClick={() => navigate("/diagnostics")} variant="outline" size="sm" className="mt-3 rounded-sm font-oswald uppercase tracking-wider text-xs">
                 Aller aux diagnostics
               </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Re-evaluation reminder */}
+        {hasDiagnostics && (forceNeedsReeval || mobilityNeedsReeval) && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 }} className="flex items-start gap-3 rounded-sm border border-amber-500/30 bg-amber-500/10 p-4">
+            <RefreshCw className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Réévaluation recommandée</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {forceNeedsReeval && `Diagnostic Force : ${forceWeeksAgo} semaines. `}
+                {mobilityNeedsReeval && `Diagnostic Mobilité : ${mobilityWeeksAgo} semaines. `}
+                Une réévaluation toutes les 4 semaines permet d'ajuster ton programme.
+              </p>
+              <div className="flex gap-2 mt-3">
+                {forceNeedsReeval && (
+                  <Button onClick={() => navigate("/diagnostic-force")} variant="outline" size="sm" className="rounded-sm font-oswald uppercase tracking-wider text-xs">
+                    Refaire Force
+                  </Button>
+                )}
+                {mobilityNeedsReeval && (
+                  <Button onClick={() => navigate("/diagnostic-mobilite")} variant="outline" size="sm" className="rounded-sm font-oswald uppercase tracking-wider text-xs">
+                    Refaire Mobilité
+                  </Button>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

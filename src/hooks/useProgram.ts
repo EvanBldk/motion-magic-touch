@@ -198,3 +198,39 @@ export function useDiagnosticStatus() {
 
   return { hasForce, hasMobility, bothDone: hasForce && hasMobility, loading, refetch };
 }
+
+export function useReEvaluationStatus() {
+  const { user } = useAuth();
+  const [forceWeeksAgo, setForceWeeksAgo] = useState<number | null>(null);
+  const [mobilityWeeksAgo, setMobilityWeeksAgo] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+
+    const fetchDates = async () => {
+      const [f, m] = await Promise.all([
+        supabase.from("force_evaluations").select("created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+        supabase.from("mobility_evaluations").select("created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      ]);
+
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+
+      setForceWeeksAgo(f.data ? Math.floor((now - new Date(f.data.created_at).getTime()) / msPerWeek) : null);
+      setMobilityWeeksAgo(m.data ? Math.floor((now - new Date(m.data.created_at).getTime()) / msPerWeek) : null);
+      setLoading(false);
+    };
+
+    fetchDates();
+  }, [user]);
+
+  return {
+    forceWeeksAgo,
+    mobilityWeeksAgo,
+    forceNeedsReeval: forceWeeksAgo !== null && forceWeeksAgo >= 4,
+    mobilityNeedsReeval: mobilityWeeksAgo !== null && mobilityWeeksAgo >= 4,
+    loading,
+  };
+}
