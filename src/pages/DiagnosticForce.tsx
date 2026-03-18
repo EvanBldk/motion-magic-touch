@@ -122,6 +122,8 @@ interface FormData {
 const initialData: FormData = {
   firstName: "",
   age: "",
+  weightKg: "",
+  heightCm: "",
   experience: "",
   daysPerWeek: 3,
   sessionDuration: "",
