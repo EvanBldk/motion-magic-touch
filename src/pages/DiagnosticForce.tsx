@@ -243,6 +243,8 @@ const DiagnosticForce = () => {
         user_id: user.id,
         first_name: data.firstName || null,
         age: data.age ? Number(data.age) : null,
+        weight_kg: data.weightKg ? Number(data.weightKg) : null,
+        height_cm: data.heightCm ? Number(data.heightCm) : null,
         experience: experienceMap[data.experience] || null,
         days_per_week: data.daysPerWeek,
         session_duration: data.sessionDuration || null,
