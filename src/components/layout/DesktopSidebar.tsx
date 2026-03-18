@@ -1,9 +1,10 @@
-import { Home, ClipboardCheck, Dumbbell, User, BookOpen } from "lucide-react";
+import { Home, ClipboardCheck, Dumbbell, User, BookOpen, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Programme", url: "/programme", icon: BookOpen },
+  { title: "Progrès", url: "/progression", icon: TrendingUp },
   { title: "Diagnostics", url: "/diagnostics", icon: ClipboardCheck },
   { title: "Workout", url: "/workout", icon: Dumbbell },
   { title: "Profil", url: "/profile", icon: User },

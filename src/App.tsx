@@ -15,6 +15,7 @@ import DiagnosticForce from "./pages/DiagnosticForce";
 import DiagnosticMobilite from "./pages/DiagnosticMobilite";
 import Programme from "./pages/Programme";
 import Profile from "./pages/Profile";
+import Progression from "./pages/Progression";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/workout" element={<Workout />} />
               <Route path="/session-active" element={<SessionActive />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/progression" element={<Progression />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
