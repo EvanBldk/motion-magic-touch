@@ -730,18 +730,21 @@ const Step3Force = ({ data, updateTest }: Step3Props) => (
       description="Bras tendus en bas, menton au-dessus de la barre en haut, sans élan."
       testData={data.pullUps}
       onChange={(f, v) => updateTest("pullUps", f, v)}
+      instructions={FORCE_TEST_INSTRUCTIONS.pullUps}
     />
     <ForceTestBlock
       title="Dips"
       description="Bras tendus en haut, descente jusqu'à 90° de flexion des coudes, sans balancement."
       testData={data.dips}
       onChange={(f, v) => updateTest("dips", f, v)}
+      instructions={FORCE_TEST_INSTRUCTIONS.dips}
     />
     <ForceTestBlock
       title="Pompes (Push-ups)"
       description="Corps aligné, poitrine qui touche le sol, coudes à environ 45° du corps."
       testData={data.pushUps}
       onChange={(f, v) => updateTest("pushUps", f, v)}
+      instructions={FORCE_TEST_INSTRUCTIONS.pushUps}
     />
   </div>
 );
