@@ -264,11 +264,8 @@ const Dashboard = () => {
           </motion.div>
         )}
 
-        {/* Rest day */}
         {gen && !todayProgram && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }} className="rounded-sm border border-border p-6 text-center">
-            <p className="text-sm text-muted-foreground">Jour de repos — récupère bien 💪</p>
-          </motion.div>
+          <RestDayBlock userId={user?.id} />
         )}
 
         {/* Link to full programme */}
