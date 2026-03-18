@@ -1,4 +1,13 @@
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+
+const DEFAULT_ANCHORS: Record<number, string> = {
+  1: "Impossible ou très limité",
+  2: "Difficile, amplitude très réduite",
+  3: "Possible mais inconfortable",
+  4: "Confortable, légère restriction",
+  5: "Aucune limitation",
+};
 
 interface ScaleInputProps {
   value: number | null;
@@ -6,6 +15,7 @@ interface ScaleInputProps {
   label: string;
   anchorLow?: string;
   anchorHigh?: string;
+  customAnchors?: Record<number, string>;
 }
 
 const ScaleInput = ({
@@ -14,7 +24,10 @@ const ScaleInput = ({
   label,
   anchorLow = "Très limité",
   anchorHigh = "Aucune limitation",
+  customAnchors,
 }: ScaleInputProps) => {
+  const anchors = customAnchors ?? DEFAULT_ANCHORS;
+
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-foreground">{label}</label>
@@ -39,6 +52,20 @@ const ScaleInput = ({
         <span>{anchorLow}</span>
         <span>{anchorHigh}</span>
       </div>
+      <AnimatePresence>
+        {value !== null && anchors[value] && (
+          <motion.p
+            key={value}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="text-xs text-muted-foreground italic"
+          >
+            {value}/5 — {anchors[value]}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

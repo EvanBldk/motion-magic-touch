@@ -485,6 +485,13 @@ const Step4Spine = ({ data, update }: StepProps) => (
       onChange={(v) => update("bridge", v)}
       anchorLow="Impossible / douleur"
       anchorHigh="Facile, bras tendus"
+      customAnchors={{
+        1: "Impossible ou douleur lombaire",
+        2: "Hanches à peine décollées",
+        3: "Pont partiel, bloqué aux épaules",
+        4: "Pont correct, bras légèrement pliés",
+        5: "Pont complet facile, bras tendus",
+      }}
     />
 
     <ScaleInput
@@ -518,6 +525,13 @@ const Step5Posterior = ({ data, update }: StepProps) => (
       label="Pike — toucher de sol jambes tendues"
       value={data.pike}
       onChange={(v) => update("pike", v)}
+      customAnchors={{
+        1: "Bloqué aux genoux",
+        2: "Milieu des tibias",
+        3: "Bout des doigts aux orteils",
+        4: "Paumes au sol",
+        5: "Poings au sol, torse contre les cuisses",
+      }}
     />
     <PainQuestion
       visible={data.pike !== null}
@@ -548,6 +562,13 @@ const Step6Hips = ({ data, update }: StepProps) => (
       onChange={(v) => update("deepSquat", v)}
       anchorLow="Perte d'équilibre"
       anchorHigh="Confortable"
+      customAnchors={{
+        1: "Perte d'équilibre / impossible",
+        2: "Très partiel, talons décollent beaucoup",
+        3: "Talons décollent légèrement",
+        4: "Presque complet, léger inconfort",
+        5: "Squat profond confortable, talons à plat",
+      }}
     />
     <PainQuestion
       visible={data.deepSquat !== null}
