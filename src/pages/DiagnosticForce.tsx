@@ -376,6 +376,34 @@ const Step1Profile = ({ data, update, toggleEquipment }: Step1Props) => (
       />
     </div>
 
+    <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label className="text-xs uppercase tracking-wider font-oswald">Poids (kg)</Label>
+        <Input
+          type="number"
+          min={30}
+          max={200}
+          step={0.1}
+          value={data.weightKg}
+          onChange={(e) => update("weightKg", e.target.value ? Number(e.target.value) : "")}
+          placeholder="75"
+          className="rounded-sm"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs uppercase tracking-wider font-oswald">Taille (cm)</Label>
+        <Input
+          type="number"
+          min={100}
+          max={230}
+          value={data.heightCm}
+          onChange={(e) => update("heightCm", e.target.value ? Number(e.target.value) : "")}
+          placeholder="175"
+          className="rounded-sm"
+        />
+      </div>
+    </div>
+
     <div className="space-y-2">
       <Label className="text-xs uppercase tracking-wider font-oswald">Expérience en callisthénie</Label>
       <Select value={data.experience} onValueChange={(v) => update("experience", v)}>
