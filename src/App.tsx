@@ -15,6 +15,7 @@ import DiagnosticForce from "./pages/DiagnosticForce";
 import DiagnosticMobilite from "./pages/DiagnosticMobilite";
 import Programme from "./pages/Programme";
 import Profile from "./pages/Profile";
+import Progression from "./pages/Progression";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
