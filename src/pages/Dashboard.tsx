@@ -164,6 +164,33 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+        {/* Re-evaluation reminder */}
+        {hasDiagnostics && (forceNeedsReeval || mobilityNeedsReeval) && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 }} className="flex items-start gap-3 rounded-sm border border-amber-500/30 bg-amber-500/10 p-4">
+            <RefreshCw className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Réévaluation recommandée</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {forceNeedsReeval && `Diagnostic Force : ${forceWeeksAgo} semaines. `}
+                {mobilityNeedsReeval && `Diagnostic Mobilité : ${mobilityWeeksAgo} semaines. `}
+                Une réévaluation toutes les 4 semaines permet d'ajuster ton programme.
+              </p>
+              <div className="flex gap-2 mt-3">
+                {forceNeedsReeval && (
+                  <Button onClick={() => navigate("/diagnostic-force")} variant="outline" size="sm" className="rounded-sm font-oswald uppercase tracking-wider text-xs">
+                    Refaire Force
+                  </Button>
+                )}
+                {mobilityNeedsReeval && (
+                  <Button onClick={() => navigate("/diagnostic-mobilite")} variant="outline" size="sm" className="rounded-sm font-oswald uppercase tracking-wider text-xs">
+                    Refaire Mobilité
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* No program yet */}
         {hasDiagnostics && !gen && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }} className="rounded-sm border border-border p-6 text-center space-y-4">
