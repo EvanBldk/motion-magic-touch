@@ -545,8 +545,105 @@ interface ForceTestBlockProps {
   onChange: (field: keyof ForceTestData, value: unknown) => void;
 }
 
-const ForceTestBlock = ({ title, description, testData, onChange }: ForceTestBlockProps) => (
+const TestInstructions = ({ title, description, formCues, imageEmoji }: {
+  title: string;
+  description: string;
+  formCues: string[];
+  imageEmoji: string;
+}) => (
+  <div className="rounded-sm border border-primary/20 bg-primary/5 p-4 space-y-2">
+    <div className="flex items-center gap-2">
+      <span className="text-2xl">{imageEmoji}</span>
+      <h3 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">{title}</h3>
+    </div>
+    <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-foreground">Forme correcte :</p>
+      {formCues.map((cue, i) => (
+        <div key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+          <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+          {cue}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+interface ForceTestInstructionsData {
+  title: string;
+  description: string;
+  formCues: string[];
+  imageEmoji: string;
+}
+
+const FORCE_TEST_INSTRUCTIONS: Record<string, ForceTestInstructionsData> = {
+  pullUps: {
+    title: "Tractions (Pull-ups)",
+    imageEmoji: "💪",
+    description: "Suspends-toi à la barre, bras complètement tendus. Tire-toi vers le haut jusqu'à ce que ton menton dépasse la barre, puis redescends bras tendus. Compte uniquement les répétitions complètes.",
+    formCues: [
+      "Bras complètement tendus en bas (dead hang)",
+      "Menton AU-DESSUS de la barre en haut",
+      "Pas d'élan ni de balancement (pas de kipping)",
+      "Prise pronation (paumes vers l'avant)",
+    ],
+  },
+  dips: {
+    title: "Dips",
+    imageEmoji: "🏋️",
+    description: "Sur des barres parallèles, bras tendus en haut. Descends jusqu'à ce que tes coudes soient pliés à 90° minimum, puis remonte bras tendus. Compte uniquement les répétitions complètes.",
+    formCues: [
+      "Bras tendus en haut (lockout complet)",
+      "Descente à minimum 90° de flexion des coudes",
+      "Pas de balancement",
+      "Corps légèrement incliné vers l'avant",
+    ],
+  },
+  pushUps: {
+    title: "Pompes (Push-ups)",
+    imageEmoji: "🫸",
+    description: "En position de planche, corps aligné des chevilles aux épaules. Descends jusqu'à ce que ta poitrine touche le sol, puis remonte bras tendus. Compte uniquement les répétitions complètes.",
+    formCues: [
+      "Corps aligné — pas de hanches qui montent ou descendent",
+      "Poitrine touche le sol à chaque répétition",
+      "Coudes à environ 45° du corps (pas complètement écartés)",
+      "Bras tendus en haut",
+    ],
+  },
+  lSit: {
+    title: "L-Sit",
+    imageEmoji: "🧘",
+    description: "Assis au sol ou sur des parallettes, soulève ton corps avec les bras tendus. Jambes tendues et parallèles au sol. Chronomètre le temps de maintien.",
+    formCues: [
+      "Bras complètement tendus",
+      "Hanches décollées du sol",
+      "Jambes tendues et parallèles au sol (ou genoux pliés en version tuck)",
+      "Épaules basses (dépression scapulaire)",
+    ],
+  },
+  hollowHold: {
+    title: "Hollow Body Hold",
+    imageEmoji: "🥄",
+    description: "Allongé sur le dos, décolle les omoplates et les jambes du sol. Bras tendus au-dessus de la tête. Le bas du dos reste COLLÉ au sol. Chronomètre le temps de maintien.",
+    formCues: [
+      "Bas du dos plaqué au sol en permanence",
+      "Omoplates décollées",
+      "Bras et jambes tendus et soulevés",
+      "Si le dos décolle, plie les genoux pour réduire le levier",
+    ],
+  },
+};
+
+const ForceTestBlock = ({ title, description, testData, onChange, instructions }: ForceTestBlockProps & { instructions?: ForceTestInstructionsData }) => (
   <div className="space-y-4 rounded-sm border border-border p-4">
+    {instructions && (
+      <TestInstructions
+        title={instructions.title}
+        description={instructions.description}
+        formCues={instructions.formCues}
+        imageEmoji={instructions.imageEmoji}
+      />
+    )}
     <h3 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">{title}</h3>
     <p className="text-xs text-muted-foreground">{description}</p>
 
