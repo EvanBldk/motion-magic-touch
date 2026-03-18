@@ -136,7 +136,7 @@ const Profile = () => {
   const painFlags = mobilityEval?.pain_flags as string[] | null;
 
   return (
-    <div className="flex flex-1 flex-col p-4 md:p-8 pb-24 md:pb-8">
+    <div className="flex flex-1 flex-col p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto">
       <div className="mx-auto w-full max-w-2xl space-y-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
