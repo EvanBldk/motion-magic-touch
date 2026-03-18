@@ -764,6 +764,12 @@ const Step4Core = ({ data, updateTest, updateLSit }: Step4Props) => (
     <h2 className="text-lg font-semibold text-primary">Gainage & Stabilité</h2>
 
     <div className="space-y-4 rounded-sm border border-border p-4">
+      <TestInstructions
+        title={FORCE_TEST_INSTRUCTIONS.lSit.title}
+        description={FORCE_TEST_INSTRUCTIONS.lSit.description}
+        formCues={FORCE_TEST_INSTRUCTIONS.lSit.formCues}
+        imageEmoji={FORCE_TEST_INSTRUCTIONS.lSit.imageEmoji}
+      />
       <h3 className="font-oswald text-sm font-semibold uppercase tracking-wider text-primary">L-Sit</h3>
       <p className="text-xs text-muted-foreground">
         Assis au sol ou aux barres, jambes tendues et parallèles au sol, hanches décollées.
@@ -831,6 +837,7 @@ const Step4Core = ({ data, updateTest, updateLSit }: Step4Props) => (
       description="Dos au sol, bas du dos collé au sol, bras et jambes tendus et soulevés."
       testData={data.hollowHold}
       onChange={(f, v) => updateTest("hollowHold", f, v)}
+      instructions={FORCE_TEST_INSTRUCTIONS.hollowHold}
     />
   </div>
 );

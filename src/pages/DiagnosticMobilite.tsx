@@ -562,6 +562,13 @@ const Step6Hips = ({ data, update }: StepProps) => (
       onChange={(v) => update("deepSquat", v)}
       anchorLow="Perte d'équilibre"
       anchorHigh="Confortable"
+      customAnchors={{
+        1: "Perte d'équilibre / impossible",
+        2: "Très partiel, talons décollent beaucoup",
+        3: "Talons décollent légèrement",
+        4: "Presque complet, léger inconfort",
+        5: "Squat profond confortable, talons à plat",
+      }}
     />
     <PainQuestion
       visible={data.deepSquat !== null}
