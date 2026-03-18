@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus } from "@/hooks/useProgram";
+import { useCurrentProgram, useCompletedSessions, useDiagnosticStatus, useReEvaluationStatus } from "@/hooks/useProgram";
 import type { ProgramDay } from "@/hooks/useProgram";
 import { cleanExerciseName } from "@/hooks/useProgram";
 
