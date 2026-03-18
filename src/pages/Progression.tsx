@@ -86,8 +86,8 @@ const Progression = () => {
         setMobilityData(
           axes.map((a) => ({
             subject: a.label,
-            score: (last as Record<string, number>)[a.key] ?? 0,
-            ...(first ? { firstScore: (first as Record<string, number>)[a.key] ?? 0 } : {}),
+            score: (last as unknown as Record<string, number>)[a.key] ?? 0,
+            ...(first ? { firstScore: (first as unknown as Record<string, number>)[a.key] ?? 0 } : {}),
           }))
         );
       }
