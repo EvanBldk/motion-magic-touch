@@ -1,5 +1,87 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
+function cleanExerciseName(name: string): string {
+  const match = name.match(/^[A-Z][A-Z0-9_]+\s*\((.+)\)$/);
+  if (match) return match[1].trim();
+  const prefixMatch = name.match(/^[A-Z][A-Z0-9_]+\s+(.+)$/);
+  if (prefixMatch) return prefixMatch[1].trim();
+  return name;
+}
+
+interface RawExercise {
+  name?: string;
+  sets?: number;
+  reps?: string;
+  rest?: string;
+  cues?: string;
+  tempo?: string;
+  notes?: string;
+}
+
+interface RawPhase {
+  name?: string;
+  exercises?: RawExercise[];
+}
+
+interface RawDay {
+  day?: string;
+  title?: string;
+  rationale?: string;
+  objective?: string;
+  phases?: RawPhase[];
+}
+
+interface RawProgram {
+  week_number?: number;
+  theme?: string;
+  start_date?: string;
+  rationale?: string;
+  weekly_objectives?: string;
+  days?: RawDay[];
+}
+
+function cleanProgram(raw: RawProgram) {
+  if (!Array.isArray(raw.days) || raw.days.length === 0) {
+    throw new Error("Programme invalide : aucun jour généré.");
+  }
+
+  const days = raw.days.map((day) => {
+    if (!Array.isArray(day.phases) || day.phases.length === 0) {
+      throw new Error(`Jour "${day.day ?? "inconnu"}" invalide : aucune phase.`);
+    }
+
+    const phases = day.phases.map((phase) => ({
+      name: phase.name || "Phase",
+      exercises: (phase.exercises ?? []).map((ex) => ({
+        name: cleanExerciseName(ex.name || "Exercice"),
+        sets: typeof ex.sets === "number" && ex.sets > 0 ? ex.sets : 3,
+        reps: ex.reps || "8-12",
+        rest: ex.rest || "60s",
+        cues: ex.cues || "Exécution contrôlée, respiration régulière.",
+        ...(ex.tempo ? { tempo: ex.tempo } : {}),
+        ...(ex.notes ? { notes: ex.notes } : {}),
+      })),
+    }));
+
+    return {
+      day: day.day || "Jour",
+      title: day.title || "Séance",
+      rationale: day.rationale || "",
+      objective: day.objective || "",
+      phases,
+    };
+  });
+
+  return {
+    week_number: raw.week_number ?? 1,
+    theme: raw.theme || "Entraînement",
+    start_date: raw.start_date || new Date().toISOString().split("T")[0],
+    rationale: raw.rationale || "Programme adapté à votre profil.",
+    weekly_objectives: raw.weekly_objectives || "",
+    days,
+  };
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -1322,7 +1404,7 @@ ${isDeloadWeek
       throw new Error("Réponse IA invalide");
     }
 
-    const program = JSON.parse(toolCall.function.arguments);
+    const program = cleanProgram(JSON.parse(toolCall.function.arguments));
 
     return new Response(JSON.stringify({ program }), {
       status: 200,
