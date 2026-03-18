@@ -485,6 +485,13 @@ const Step4Spine = ({ data, update }: StepProps) => (
       onChange={(v) => update("bridge", v)}
       anchorLow="Impossible / douleur"
       anchorHigh="Facile, bras tendus"
+      customAnchors={{
+        1: "Impossible ou douleur lombaire",
+        2: "Hanches à peine décollées",
+        3: "Pont partiel, bloqué aux épaules",
+        4: "Pont correct, bras légèrement pliés",
+        5: "Pont complet facile, bras tendus",
+      }}
     />
 
     <ScaleInput
