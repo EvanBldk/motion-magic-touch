@@ -518,6 +518,13 @@ const Step5Posterior = ({ data, update }: StepProps) => (
       label="Pike — toucher de sol jambes tendues"
       value={data.pike}
       onChange={(v) => update("pike", v)}
+      customAnchors={{
+        1: "Bloqué aux genoux",
+        2: "Milieu des tibias",
+        3: "Bout des doigts aux orteils",
+        4: "Paumes au sol",
+        5: "Poings au sol, torse contre les cuisses",
+      }}
     />
     <PainQuestion
       visible={data.pike !== null}
